@@ -3,6 +3,7 @@
   import { Svroller } from "svrollbar";
   import { onMount } from "svelte";
   import { subscribe } from "svelte/internal";
+  import Search from "$lib/icons/search.svg";
 
   // const items = Array.from({ length: 50 }).map((_, i) => `teacher ${i}`);
   const teachers = [
@@ -57,10 +58,26 @@
 
   onMount(async () => {
     list_of_teachers = await document.querySelector(".svlr-contents");
-    console.log(
-      (list_of_teachers.classList.value +=
-        " flex flex-col divide-y-[2px] border-b-[2px] border-zinc-300 divide-zinc-300")
-    );
+    list_of_teachers.classList.value +=
+      " flex flex-col divide-y-[2px] border-b-[2px] border-zinc-300 divide-zinc-300";
+
+    // const map = document.querySelector("#map");
+    // let gElements = map.querySelectorAll("g");
+    // console.log(gElements);
+    // gElements.forEach((element) => {
+    //   element.setAttribute("fill", "#ff0000");
+    // });
+    // let pathElements = map.querySelectorAll("path");
+    // pathElements.forEach((element) => {
+    //   element.setAttribute("fill", "#ff0000");
+    // });
+
+    // list_of_teachers = await document
+    //   .querySelector("#map_svg")
+    //   .each(function () {
+    //     this.width = this.parentNode.width;
+    //     this.height = this.parentNode.height;
+    //   });
   });
 
   let searchClass = "";
@@ -85,7 +102,8 @@
     <!-- menu -->
     <div class="text-2xl flex items-center mt-4">
       <!-- search bar -->
-      <Icon name="search" class="h-12 w-12 text-red-700" />
+      <!-- <Icon name="search" class="h-12 w-12 text-red-700" /> -->
+      <Search class="h-12 w-12 text-red-500" fill="currentColor" />
 
       <input
         bind:value={searchClass}
@@ -100,7 +118,7 @@
       <p class="inline-block font-bold">3-й этаж</p>
     </div>
     <div
-      class="leading-4 text-sm rounded-xl border-zinc-300 border-[3px] h-[480px]"
+      class="leading-4 text-sm rounded-xl border-zinc-300 border-[3px] h-[440px]"
     >
       <!-- list of teachers -->
       <Svroller width="100%" height="100%" initiallyVisible>
@@ -129,9 +147,26 @@
         {/each}
       </Svroller>
     </div>
-    <div class="bg-green-300">
-      <!-- college map -->
-      <div>College map</div>
+    <div class="">
+      <div
+        class="w-full h-[220px] relative z-0 rounded-xl border-zinc-300 border-[3px] p-4"
+      >
+        <div class="absolute top-[calc(50%-8px)] left-[80px] z-0">
+          <div
+            class="w-4 h-4 rounded-full border-2 border-red-500 hover:bg-red-500 transition duration-500 ease-out"
+            on:click={() => console.log("hello")}
+          />
+        </div>
+        <div class="absolute top-[calc(50%-8px)] left-[168px] z-0">
+          <div class="bg-red-500 w-4 h-4 rounded-full" />
+        </div>
+        <div class="absolute top-[calc(50%-8px)] left-[240px] z-0">
+          <div class="bg-red-500 w-4 h-4 rounded-full" />
+        </div>
+        <!-- <div class="z-10"> -->
+        <Icon name="floor" class="h-full z-10" />
+        <!-- </div> -->
+      </div>
     </div>
   </div>
   <div>

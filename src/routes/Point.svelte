@@ -3,8 +3,8 @@
 
   export let name;
 
-  export let fill = "currentColor";
-  export let stroke = "currentColor";
+  export let x = "10px";
+  export let y = "10px";
 
   export let width = "";
   export let height = "1.5rem";
