@@ -1,6 +1,7 @@
 <script>
   import Menu from "./Menu.svelte";
   import Panolens from "./Panolens.svelte";
+  import Map from "./Map.svelte"
 </script>
 
 <svelte:head>
@@ -9,16 +10,12 @@
 </svelte:head>
 
 <section>
-  <!-- <div class="absolute inset-0 bg-neutral-700 flex justify-center items-center">
-		<PlatformMarker/>
-	</div> -->
-  <!-- <div class="absolute inset-0 bg-gray-900">
-		<Map/>
-	</div> -->
-  <div class="flex">
+  <!-- <div class="flex">
     <div class="inset-0">
       <Menu />
     </div>
     <Panolens />
-  </div>
+  </div> -->
+  <Map />
+
 </section>

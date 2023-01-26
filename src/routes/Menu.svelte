@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import { subscribe } from "svelte/internal";
   import Search from "$lib/icons/search.svg";
+  import Floor2 from "$lib/floors/2floor.png";
 
   // const items = Array.from({ length: 50 }).map((_, i) => `teacher ${i}`);
   const teachers = [
@@ -118,7 +119,7 @@
       <p class="inline-block font-bold">3-й этаж</p>
     </div>
     <div
-      class="leading-4 text-sm rounded-xl border-zinc-300 border-[3px] h-[440px]"
+      class="leading-4 text-sm rounded-xl border-zinc-300 border-[3px] h-[340px]"
     >
       <!-- list of teachers -->
       <Svroller width="100%" height="100%" initiallyVisible>
@@ -149,7 +150,7 @@
     </div>
     <div class="">
       <div
-        class="w-full h-[220px] relative z-0 rounded-xl border-zinc-300 border-[3px] p-4"
+        class="w-full h-[330px] relative z-0 rounded-xl border-zinc-300 border-[3px] p-4"
       >
         <div class="absolute top-[calc(50%-8px)] left-[80px] z-0">
           <div
@@ -164,7 +165,8 @@
           <div class="bg-red-500 w-4 h-4 rounded-full" />
         </div>
         <!-- <div class="z-10"> -->
-        <Icon name="floor" class="h-full z-10" />
+        <!-- <Icon name="2floor" class="h-full z-10" /> -->
+        <img src={Floor2} alt="background image" class="m-auto h-full z-10"/>
         <!-- </div> -->
       </div>
     </div>
