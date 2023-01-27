@@ -27,6 +27,7 @@
 	"dependencies": {
 		"@geoman-io/leaflet-geoman-free": "^2.14.1",
 		"leaflet": "^1.9.3",
+		"notiflix": "^3.2.6",
 		"panolens": "^0.12.1",
 		"svrollbar": "^0.12.0"
 	}
