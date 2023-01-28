@@ -5,7 +5,19 @@
   import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
   import "leaflet/dist/leaflet.css";
   const bg = new URL("$lib/floors/2floor.png", import.meta.url).href;
+  const downloadIcon = new URL(
+    "$lib/icons/controls/download.svg",
+    import.meta.url
+  ).href;
+  const uploadIcon = new URL("$lib/icons/controls/upload.svg", import.meta.url)
+    .href;
+  const saveIcon = new URL("$lib/icons/controls/save.svg", import.meta.url)
+    .href;
   import Notiflix from "notiflix";
+  import { saveAs } from "file-saver";
+
+  var downloadIconTailwind = `bg-[url('${downloadIcon}')]`;
+  console.log(downloadIconTailwind);
 
   onMount(() => {
     const mapContainer = document.querySelector("#map") as HTMLElement;
@@ -29,8 +41,42 @@
     map.pm.addControls({
       position: "topleft",
       fullscreenControl: true,
+      drawCircle: false,
+      drawCircleMarker: false,
+      drawMarker: false,
+      // drawPolyline: false,
+
+      // oneBlock: true,
       // snappingOption: true,
       // drawCircle: false,
+    });
+    map.pm.Toolbar.createCustomControl({
+      name: "save",
+      block: "custom",
+      title: "save",
+      className: `bg-[url('lib/icons/controls/save.svg')]`,
+      onClick() {
+        saveGeojson();
+        alert("niggas");
+      },
+    });
+    map.pm.Toolbar.createCustomControl({
+      name: "download",
+      block: "custom",
+      title: "download",
+      className: `bg-[url('lib/icons/controls/download.svg')]`,
+      onClick() {
+        alert("download");
+      },
+    });
+    map.pm.Toolbar.createCustomControl({
+      name: "upload",
+      block: "custom",
+      title: "save button title",
+      className: `bg-[url('lib/icons/controls/upload.svg')]`,
+      onClick() {
+        alert("upload");
+      },
     });
     map.pm.setGlobalOptions({ snappable: false });
 
@@ -162,26 +208,18 @@
 
     const exportJSON = document.querySelector(".export");
 
-    exportJSON.addEventListener("click", () => {
+    function saveGeojson() {
       // Extract GeoJson from featureGroup
       const data = drawnItems.toGeoJSON();
 
-      // if (data.features.length === 0) {
-      //   Notiflix.Notify.failure(
-      //     "You must have some data to save a geojson file"
-      //   );
-      //   return;
-      // } else {
-      //   Notiflix.Notify.info("You can save the data to a geojson");
-      // }
+      // Create a blob of the data
+      var fileToSave = new Blob([JSON.stringify(data)], {
+        type: "application/json",
+      });
 
-      // Stringify the GeoJson
-      const convertedData =
-        "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
-
-      exportJSON.setAttribute("href", "data:" + convertedData);
-      exportJSON.setAttribute("download", "data.geojson");
-    });
+      // Save the file
+      saveAs(fileToSave, '/lib/geojson/layout.json');
+    }
 
     // --------------------------------------------------
     // save geojson to localstorage
@@ -304,90 +342,5 @@
     />
   </symbol>
 </svg>
+
 <div id="map" class="w-[900px] h-[500px] !bg-white" />
-
-<!-- <img src={bg} alt=""> -->
-<style>
-  /* *,
-  :after,
-  :before {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-  }
-
-  html {
-    height: 100%;
-  }
-
-  body,
-  html,
-  #map {
-    width: 100%;
-    height: 100%;
-  }
-
-  body {
-    position: relative;
-    min-height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-      sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    margin: 0;
-    padding: 0;
-    background-color: #f1f1f1;
-  }
-
-  .link-button label {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-    width: 110%;
-  }
-
-  .leaflet-touch .link-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 34px;
-    height: 34px;
-    background: #fff;
-    margin-bottom: 5px;
-    padding: 5px;
-  }
-
-  .link-button:hover {
-    background-color: #f4f4f4;
-    fill: #a200ff;
-  }
-
-  .link-button:hover:after {
-    position: absolute;
-    display: flex;
-    justify-content: end;
-    content: attr(title);
-    right: 40px;
-    width: auto;
-    white-space: nowrap;
-    background: #fff;
-    padding: 5px;
-  }
-
-  .geojson {
-    display: none;
-  }
-
-  input[type="file"] {
-    font-size: 0;
-  }
-  ::file-selector-button {
-    font-size: initial;
-  }
-
-  .icon-geojson {
-    width: 25px;
-    height: 25px;
-  } */
-</style>
