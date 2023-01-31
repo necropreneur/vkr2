@@ -3,10 +3,10 @@
 
   export let name;
 
-  export let fill = "currentColor";
-  export let stroke = "currentColor";
+  export let fill = "none";
+  export let stroke = "none";
 
-  export let width = "";
+  export let width = "1.5rem";
   export let height = "1.5rem";
   export let focusable = false;
 
@@ -15,11 +15,7 @@
   onMount(async () => {
     // This error is weird. It gives 2 errors that there is no Svg.match method
     Svg = (await import(`./icons/${name}.svg`)).default;
-    // if (Svg) {
-    //   let viewBox = Svg.match(/viewBox="(.+?)"/)[1];
-    //   let [viewBoxWidth, viewBoxHeight] = viewBox.split(" ").slice(2);
-    //   width = `${(height * viewBoxWidth) / viewBoxHeight}px`;
-    // }
+
   });
 </script>
 

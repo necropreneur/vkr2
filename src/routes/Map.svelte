@@ -15,9 +15,10 @@
     .href;
   import Notiflix from "notiflix";
   import { saveAs } from "file-saver";
-
-  var downloadIconTailwind = `bg-[url('${downloadIcon}')]`;
-  console.log(downloadIconTailwind);
+  import Search from "$lib/icons/search.svg";
+  import Icon from "../lib/Icon.svelte";
+  // var equal = require('deep-equal');
+  import equal from "deep-equal";
 
   onMount(() => {
     const mapContainer = document.querySelector("#map") as HTMLElement;
@@ -39,45 +40,96 @@
       attributionControl: false,
     });
     map.pm.addControls({
-      position: "topleft",
-      fullscreenControl: true,
+      cutPolygon: true,
+      download: true,
+      dragMode: true,
       drawCircle: false,
       drawCircleMarker: false,
       drawMarker: false,
+      drawPolygon: true,
+      drawPolyline: true,
+      drawRectangle: true,
+      drawText: true,
+      editMode: false,
+      fullscreenControl: true,
+      positions: {
+        draw: "topleft",
+        edit: "topleft",
+        custom: "topright",
+      },
+      removalMode: true,
+      rotateMode: true,
       // drawPolyline: false,
 
       // oneBlock: true,
       // snappingOption: true,
       // drawCircle: false,
     });
-    map.pm.Toolbar.createCustomControl({
-      name: "save",
-      block: "custom",
-      title: "save",
-      className: `bg-[url('lib/icons/controls/save.svg')]`,
-      onClick() {
-        saveGeojson();
-        alert("niggas");
-      },
-    });
-    map.pm.Toolbar.createCustomControl({
-      name: "download",
-      block: "custom",
-      title: "download",
-      className: `bg-[url('lib/icons/controls/download.svg')]`,
-      onClick() {
-        alert("download");
-      },
-    });
-    map.pm.Toolbar.createCustomControl({
-      name: "upload",
-      block: "custom",
-      title: "save button title",
-      className: `bg-[url('lib/icons/controls/upload.svg')]`,
-      onClick() {
-        alert("upload");
-      },
-    });
+    // map.pm.Toolbar.copyDrawControl("Delete", {
+    //   name: "DeleteCopy",
+    //   block: "custom",
+    //   title: "Display text on hover button",
+    // });
+    // console.log(map.pm.Toolbar)
+    // map.pm.Toolbar.createCustomControl({
+    //   name: "editLayers",
+    //   block: "custom",
+    //   className: "leaflet-pm-icon-edit xyz-class",
+    //   title: "Edit layers",
+    //   afterClick: () => {
+    //     map.pm.toggleGlobalEditMode();
+    //   },
+    //   toggle: true,
+    //   actions: ["finishMode"],
+    // });
+
+    // map.pm.Toolbar.createCustomControl({
+    //   name: "saveLocalstorage",
+    //   block: "edit",
+    //   title: "save to local storage",
+    //   className: `bg-[url('lib/icons/controls/saveLocalstorage.svg')]`,
+    //   onClick() {
+    //     map.pm.disableGlobalRemovalMode();
+    //   },
+    //   actions: ["finishMode"],
+    // });
+
+    // map.pm.Toolbar.createCustomControl({
+    //   name: "asdf",
+    //   block: "custom",
+    //   title: "save to local storage",
+    //   className: `bg-[url('lib/icons/controls/saveLocalstorage.svg')]`,
+    //   onClick() {
+    //     saveGeojson();
+    //   },
+    // });
+    // map.pm.Toolbar.createCustomControl({
+    //   name: "loadLocalstorage",
+    //   block: "custom",
+    //   title: "load from local storage",
+    //   className: `bg-[url('lib/icons/controls/loadLocalstorage.svg')]`,
+    //   onClick() {
+    //     loadGeojsonFromLocalstorage();
+    //   },
+    // });
+    // map.pm.Toolbar.createCustomControl({
+    //   name: "download",
+    //   block: "custom",
+    //   title: "download file",
+    //   className: `bg-[url('lib/icons/controls/download.svg')]`,
+    //   onClick() {
+    //     downloadGeojson();
+    //   },
+    // });
+    // map.pm.Toolbar.createCustomControl({
+    //   name: "loadGeojson",
+    //   block: "custom",
+    //   title: "load geojson from file",
+    //   className: `bg-[url('lib/icons/controls/upload.svg')]`,
+    //   onClick() {
+    //     alert("loadGeojson");
+    //   },
+    // });
     map.pm.setGlobalOptions({ snappable: false });
 
     var image = L.imageOverlay(bg, bounds).addTo(map);
@@ -102,69 +154,69 @@
       distance: "10px",
     });
 
-    // --------------------------------------------------
-    // add buttons to map
-    const customControl = L.Control.extend({
-      // button position
-      options: {
-        position: "topright",
-      },
+    //   // --------------------------------------------------
+    //   // add buttons to map
+    //   const customControl = L.Control.extend({
+    //     // button position
+    //     options: {
+    //       position: "topright",
+    //     },
 
-      // method
-      onAdd: function () {
-        const array = [
-          {
-            title: "export features geojson",
-            html: "<svg class='icon-geojson'><use xlink:href='#icon-export'></use></svg>",
-            className: "export link-button leaflet-bar",
-          },
-          {
-            title: "save geojson",
-            html: "<svg class='icon-geojson'><use xlink:href='#icon-add'></use></svg>",
-            className: "save link-button leaflet-bar",
-          },
-          {
-            title: "remove geojson",
-            html: "<svg class='icon-geojson'><use xlink:href='#icon-remove'></use></svg>",
-            className: "remove link-button leaflet-bar",
-          },
-          {
-            title: "load gejson from file",
-            html: "<input type='file' id='geojson' class='geojson' accept='text/plain, text/json, .geojson' onchange='openFile(event)' /><label for='geojson'><svg class='icon-geojson'><use xlink:href='#icon-import'></use></svg></label>",
-            className: "load link-button leaflet-bar",
-          },
-        ];
+    //     // method
+    //     onAdd: function () {
+    //       const array = [
+    //         {
+    //           title: "export features geojson",
+    //           html: "<svg class='icon-geojson'><use xlink:href='#icon-export'></use></svg>",
+    //           className: "export link-button leaflet-bar",
+    //         },
+    //         {
+    //           title: "save geojson",
+    //           html: "<svg class='icon-geojson'><use xlink:href='#icon-add'></use></svg>",
+    //           className: "save link-button leaflet-bar",
+    //         },
+    //         {
+    //           title: "remove geojson",
+    //           html: "<svg class='icon-geojson'><use xlink:href='#icon-remove'></use></svg>",
+    //           className: "remove link-button leaflet-bar",
+    //         },
+    //         {
+    //           title: "load gejson from file",
+    //           html: "<input type='file' id='geojson' class='geojson' accept='text/plain, text/json, .geojson' onchange='openFile(event)' /><label for='geojson'><svg class='icon-geojson'><use xlink:href='#icon-import'></use></svg></label>",
+    //           className: "load link-button leaflet-bar",
+    //         },
+    //       ];
 
-        const container = L.DomUtil.create(
-          "div",
-          "leaflet-control leaflet-action-button"
-        );
+    //       const container = L.DomUtil.create(
+    //         "div",
+    //         "leaflet-control leaflet-action-button"
+    //       );
 
-        array.forEach((item) => {
-          const button = L.DomUtil.create("a");
-          button.href = "#";
-          button.setAttribute("role", "button");
+    //       array.forEach((item) => {
+    //         const button = L.DomUtil.create("a");
+    //         button.href = "#";
+    //         button.setAttribute("role", "button");
 
-          button.title = item.title;
-          button.innerHTML = item.html;
-          button.className += item.className;
+    //         button.title = item.title;
+    //         button.innerHTML = item.html;
+    //         button.className += item.className;
 
-          // add buttons to container;
-          container.appendChild(button);
-        });
+    //         // add buttons to container;
+    //         container.appendChild(button);
+    //       });
 
-        return container;
-      },
-    });
-    map.addControl(new customControl());
+    //       return container;
+    //     },
+    //   });
+    //   map.addControl(new customControl());
 
-    // Drow polygon, circle, rectangle, polyline
-    // --------------------------------------------------
+    //   // Drow polygon, circle, rectangle, polyline
+    //   // --------------------------------------------------
 
     var drawnItems = L.featureGroup().addTo(map);
 
     // map.addControl(
-    //   new L.Control.({
+    //   new L.Control.Draw({
     //     edit: {
     //       featureGroup: drawnItems,
     //       poly: {
@@ -183,16 +235,16 @@
     // map.on(L.Draw.Event.CREATED, function (event) {
     //   let layer = event.layer;
     //   let feature = (layer.feature = layer.feature || {});
-    //   let type = event.layerType;
+    //   // let type = event.layerType;
 
     //   feature.type = feature.type || "Feature";
-    //   let props = (feature.properties = feature.properties || {});
+    //   // let props = (feature.properties = feature.properties || {});
 
-    //   props.type = type;
+    //   // props.type = type;
 
-    //   if (type === "circle") {
-    //     props.radius = layer.getRadius();
-    //   }
+    //   // if (type === "circle") {
+    //   //   props.radius = layer.getRadius();
+    //   // }
 
     //   drawnItems.addLayer(layer);
     // });
@@ -203,63 +255,106 @@
       drawnItems.addLayer(layer);
     });
 
-    // --------------------------------------------------
-    // save geojson to file
+    //   // --------------------------------------------------
+    //   // download geojson to file
 
-    const exportJSON = document.querySelector(".export");
+    //   function downloadGeojson() {
+    //     const data = drawnItems.toGeoJSON();
+    //     var fileToSave = new Blob([JSON.stringify(data)], {
+    //       type: "application/json",
+    //     });
+    //     saveAs(fileToSave, "/lib/geojson/layout.json");
+    //   }
 
-    function saveGeojson() {
-      // Extract GeoJson from featureGroup
+    //   // --------------------------------------------------
+    //   // save geojson to localstorage
+    //   const saveJSON = document.querySelector(".save");
+
+    function saveGeojsonLS() {
       const data = drawnItems.toGeoJSON();
+      console.log(data);
 
-      // Create a blob of the data
-      var fileToSave = new Blob([JSON.stringify(data)], {
-        type: "application/json",
-      });
-
-      // Save the file
-      saveAs(fileToSave, '/lib/geojson/layout.json');
-    }
-
-    // --------------------------------------------------
-    // save geojson to localstorage
-    const saveJSON = document.querySelector(".save");
-
-    saveJSON.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      const data = drawnItems.toGeoJSON();
-
-      // if (data.features.length === 0) {
-      //   Notiflix.Notify.failure("You must have some data to save it");
-      //   return;
-      // } else {
-      //   Notiflix.Notify.success("The data has been saved to localstorage");
-      // }
+      if (Object.keys(data).length === 0) {
+        Notiflix.Notify.failure("You must have some data to save it");
+        return;
+      } else {
+        Notiflix.Notify.success("The data has been saved to localstorage");
+      }
 
       localStorage.setItem("geojson", JSON.stringify(data));
-    });
+    }
 
-    // --------------------------------------------------
-    // remove gojson from localstorage
+    //   // --------------------------------------------------
+    //   // remove gojson from localstorage
 
-    const removeJSON = document.querySelector(".remove");
+    //   const removeJSON = document.querySelector(".remove");
 
-    removeJSON.addEventListener("click", (e) => {
-      e.preventDefault();
-      localStorage.removeItem("geojson");
+    //   removeJSON.addEventListener("click", (e) => {
+    //     e.preventDefault();
+    //     localStorage.removeItem("geojson");
 
-      Notiflix.Notify.info("All layers have been deleted");
+    //     Notiflix.Notify.info("All layers have been deleted");
 
-      drawnItems.eachLayer(function (layer) {
-        drawnItems.removeLayer(layer);
-      });
-    });
+    //     drawnItems.eachLayer(function (layer) {
+    //       drawnItems.removeLayer(layer);
+    //     });
+    //   });
 
-    // --------------------------------------------------
-    // load geojson from localstorage
+    //   // --------------------------------------------------
+    //   // load geojson from localstorage
 
-    const geojsonFromLocalStorage = JSON.parse(localStorage.getItem("geojson"));
+    function difference(a: any[], b: any[]) {
+      // A comparer used to determine if two entries are equal.
+      const isSameUser = (a, b) => equal(a, b);
+
+      // Get items that only occur in the left array,
+      // using the compareFunction to determine equality.
+      const onlyInLeft = (left, right, compareFunction) =>
+        left.filter(
+          (leftValue) =>
+            !right.some((rightValue) => compareFunction(leftValue, rightValue))
+        );
+
+      const onlyInA = onlyInLeft(a, b, isSameUser);
+      const onlyInB = onlyInLeft(b, a, isSameUser);
+
+      const result = [...onlyInA, ...onlyInB];
+      return result;
+    }
+
+    function onlyInA(a: any[], b: any[]) {
+      // A comparer used to determine if two entries are equal.
+      const isSameUser = (a, b) => equal(a, b);
+
+      // Get items that only occur in the left array,
+      // using the compareFunction to determine equality.
+      const onlyInLeft = (left, right, compareFunction) =>
+        left.filter(
+          (leftValue) =>
+            !right.some((rightValue) => compareFunction(leftValue, rightValue))
+        );
+
+      const onlyInA = onlyInLeft(a, b, isSameUser);
+
+      return onlyInA;
+    }
+
+    function loadGeojsonLS() {
+      const geojsonFromLocalStorage = JSON.parse(
+        localStorage.getItem("geojson")
+      ).features;
+      const drawnGeojson = (drawnItems.toGeoJSON() as any).features || {};
+
+      const newGeojson = onlyInA(geojsonFromLocalStorage, drawnGeojson);
+
+      // console.log(geojsonFromLocalStorage);
+      // console.log(drawnGeojson);
+      // console.log(newGeojson);
+
+      if (newGeojson) {
+        setGeojsonToMap(newGeojson);
+      }
+    }
 
     function setGeojsonToMap(geojson) {
       const feature = L.geoJSON(geojson, {
@@ -283,8 +378,9 @@
           }
         },
         onEachFeature: function (feature, layer) {
+          // console.log((feature.geometry as any).coordinates.toString());
           drawnItems.addLayer(layer);
-          const coordinates = feature.geometry.bbox.toString();
+          const coordinates = (feature.geometry as any).coordinates.toString();
           const result = coordinates.match(/[^,]+,[^,]+/g);
 
           layer.bindPopup(
@@ -292,55 +388,118 @@
           );
         },
       }).addTo(map);
-
-      map.flyToBounds(feature.getBounds());
+      // map.flyToBounds(feature.getBounds());
     }
 
-    if (geojsonFromLocalStorage) {
-      setGeojsonToMap(geojsonFromLocalStorage);
-    }
+    //   // --------------------------------------------------
+    //   // get geojson from file
 
-    // --------------------------------------------------
-    // get geojson from file
+    //   function openFile(event) {
+    //     const input = event.target;
 
-    function openFile(event) {
-      const input = event.target;
+    //     const reader = new FileReader();
+    //     reader.onload = function () {
+    //       const result = reader.result as string;
+    //       const geojson = JSON.parse(result);
 
-      const reader = new FileReader();
-      reader.onload = function () {
-        const result = reader.result as string;
-        const geojson = JSON.parse(result);
+    //       Notiflix.Notify.info("The data has been loaded from the file");
 
-        Notiflix.Notify.info("The data has been loaded from the file");
+    //       setGeojsonToMap(geojson);
+    //     };
+    //     reader.readAsText(input.files[0]);
+    //   }
 
-        setGeojsonToMap(geojson);
-      };
-      reader.readAsText(input.files[0]);
-    }
+    document
+      .querySelector("#aDelete")
+      .addEventListener("click", function (event) {
+        event.preventDefault();
+        console.log(localStorage.getItem("geojson"));
+        // localStorage.removeItem("geojson");
+
+        // Notiflix.Notify.info("All layers have been deleted");
+
+        // drawnItems.eachLayer(function (layer) {
+        //   drawnItems.removeLayer(layer);
+        // });
+        map.pm.toggleGlobalRemovalMode();
+        // console.log("niggas");
+      });
+    drawnItems.on("click", function (event) {
+      console.log(event);
+      drawnItems.removeLayer(event.layer);
+    });
+
+    document
+      .querySelector("#aSaveLS")
+      .addEventListener("click", function (event) {
+        event.preventDefault();
+        saveGeojsonLS();
+      });
+
+    document
+      .querySelector("#aLoadLS")
+      .addEventListener("click", function (event) {
+        event.preventDefault();
+        loadGeojsonLS();
+        console.log("aLoadLS");
+      });
+
+    map.pm.addControls({ removalMode: false });
+
+    loadGeojsonLS();
   });
 </script>
 
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none">
-  <symbol id="icon-export" viewBox="0 0 24 24">
-    <path
-      d="M0 12c0 6.627 5.373 12 12 12s12-5.373 12-12S18.627 0 12 0 0 5.373 0 12zm17-1h-4v8h-2v-8H7l5-6 5 6z"
-    />
-  </symbol>
-  <symbol id="icon-add" viewBox="0 0 24 24">
-    <path
-      d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6 13h-5v5h-2v-5H6v-2h5V6h2v5h5v2z"
-    />
-  </symbol>
-  <symbol id="icon-remove" viewBox="0 0 24 24">
-    <path
-      d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6 13H6v-2h12v2z"
-    />
-  </symbol>
-  <symbol id="icon-import" viewBox="0 0 24 24">
-    <path
-      d="M24 12c0-6.627-5.373-12-12-12S0 5.373 0 12s5.373 12 12 12 12-5.373 12-12zM7 13h4V5h2v8h4l-5 6-5-6z"
-    />
-  </symbol>
-</svg>
-
-<div id="map" class="w-[900px] h-[500px] !bg-white" />
+<div id="map" class="w-[900px] h-[500px] !bg-white">
+  <div class="absolute z-[1000] right-0">
+    <div class="float-right  mr-[10px] mt-[10px]">
+      <div class="border-[1.6px] rounded-[4px] bg-white">
+        <a href="" id="aDelete">
+          <div class="p-[5px] border-b-[1px]">
+            <Icon
+              name="Remove"
+              class="w-[20px] h-[20px] text-orange-600"
+              fill="currentColor"
+            />
+          </div>
+        </a>
+        <a href="" id="aSaveLS">
+          <div class="p-[5px] border-b-[1px]">
+            <Icon
+              name="saveLs"
+              class="w-[20px] h-[20px] text-orange-600"
+              fill="currentColor"
+            />
+          </div>
+        </a>
+        <a href="" id="aLoadLS">
+          <div class="p-[5px] border-b-[1px]">
+            <Icon
+              name="loadLs"
+              class="w-[20px] h-[20px] text-orange-600"
+              fill="currentColor"
+            />
+          </div>
+        </a>
+        <!-- <a href="" id="aSaveLS">
+          <div class="p-[5px] border-b-[1px]">
+            <Icon
+              name="saveF"
+              class="w-[20px] h-[20px] text-orange-600"
+              fill="currentColor"
+            />
+          </div>
+        </a>
+        <a href="" id="aSaveLS">
+          <div class="p-[5px]">
+            <Icon
+              name="loadF"
+              class="w-[20px] h-[20px] text-orange-600"
+              fill="currentColor"
+            />
+          </div>
+        </a> -->
+      </div>
+    </div>
+  </div>
+</div>
