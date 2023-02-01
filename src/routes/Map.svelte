@@ -230,6 +230,7 @@
       if (newGeojson) {
         setGeojsonToMap(newGeojson);
       }
+      setLayersStyle()
     }
 
     function setGeojsonToMap(geojson) {
@@ -350,7 +351,7 @@
     // map.pm.addControls({ removalMode: false });
 
     loadGeojsonLS();
-    setLayersStyle();
+    // setLayersStyle();
   });
 </script>
 
