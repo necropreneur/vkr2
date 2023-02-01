@@ -20,6 +20,8 @@
   // var equal = require('deep-equal');
   import equal from "deep-equal";
 
+  var customGlobalRemovalMode = false;
+
   onMount(() => {
     const mapContainer = document.querySelector("#map") as HTMLElement;
 
@@ -36,8 +38,9 @@
       zoomSnap: 0,
       // zoomSnap: 1,
       zoomDelta: 0.3,
-      maxBounds: bounds,
+      // maxBounds: bounds,
       attributionControl: false,
+      renderer: L.svg()
     });
     map.pm.addControls({
       cutPolygon: true,
@@ -50,7 +53,7 @@
       drawPolyline: true,
       drawRectangle: true,
       drawText: true,
-      editMode: false,
+      editMode: true,
       fullscreenControl: true,
       positions: {
         draw: "topleft",
@@ -65,23 +68,18 @@
       // snappingOption: true,
       // drawCircle: false,
     });
-    // map.pm.Toolbar.copyDrawControl("Delete", {
-    //   name: "DeleteCopy",
-    //   block: "custom",
-    //   title: "Display text on hover button",
-    // });
-    // console.log(map.pm.Toolbar)
-    // map.pm.Toolbar.createCustomControl({
-    //   name: "editLayers",
-    //   block: "custom",
-    //   className: "leaflet-pm-icon-edit xyz-class",
-    //   title: "Edit layers",
-    //   afterClick: () => {
-    //     map.pm.toggleGlobalEditMode();
-    //   },
-    //   toggle: true,
-    //   actions: ["finishMode"],
-    // });
+
+    map.pm.Toolbar.createCustomControl({
+      name: "Remove layers",
+      block: "edit",
+      className: "leaflet-pm-icon-delete xyz-class",
+      title: "Edit layers",
+      afterClick: () => {
+        map.pm.toggleGlobalEditMode();
+      },
+      toggle: true,
+      actions: ["finishMode"],
+    });
 
     // map.pm.Toolbar.createCustomControl({
     //   name: "saveLocalstorage",
@@ -253,7 +251,40 @@
       console.log(event);
       let layer = event.layer;
       drawnItems.addLayer(layer);
+      setLayersStyle()
     });
+
+    function setLayersStyle() {
+      drawnItems.eachLayer(function (layer) {
+        if (layer instanceof L.Polygon) {
+          layer.on("mouseover", function (e) {
+            // console.log(layer.className)
+            // layer.setStyle({
+            //   color: "red",
+            //   opacity: 0,
+            //   fillColor: "red",
+            //   fillOpacity: 0.5,
+            //   weight: 2,
+            // });
+            layer.setStyle({
+              className: 'text-red-500 bg-red-500'
+            })
+            // layer._path.className = 'leaflet-interactive ';
+            // layer._path.className += 'fill-red-500';
+            layer._path.setAttribute('class', 'leaflet-interactive fill-red-500')
+          });
+          layer.on("mouseout", function (e) {
+            // layer.setStyle({
+            //   color: "black",
+            //   opacity: 0,
+            //   fillColor: "white",
+            //   fillOpacity: 1,
+            // });
+            layer._path.setAttribute('class', 'leaflet-interactive fill-red-900')
+          });
+        }
+      });
+    }
 
     //   // --------------------------------------------------
     //   // download geojson to file
@@ -270,57 +301,76 @@
     //   // save geojson to localstorage
     //   const saveJSON = document.querySelector(".save");
 
-    function saveGeojsonLS() {
-      const data = drawnItems.toGeoJSON();
-      console.log(data);
+    function removeDuplicates(arr: any) {
+      console.log(arr);
+      const result = [];
+      arr.forEach(function (item) {
+        let duplicate = false;
+        result.forEach(function (res) {
+          if (equal(res, item)) {
+            duplicate = true;
+          }
+        });
+        if (!duplicate) {
+          result.push(item);
+        }
+      });
+      return result;
+    }
 
-      if (Object.keys(data).length === 0) {
+    function saveGeojsonLS() {
+      let gj = drawnItems.toGeoJSON() as any;
+      let gjFeatures = (drawnItems.toGeoJSON() as any).features;
+
+      if (Object.keys(gjFeatures).length === 0) {
         Notiflix.Notify.failure("You must have some data to save it");
         return;
       } else {
         Notiflix.Notify.success("The data has been saved to localstorage");
       }
 
-      localStorage.setItem("geojson", JSON.stringify(data));
+      gj.features = removeDuplicates(gjFeatures);
+      console.log(drawnItems);
+      localStorage.setItem("geojson", JSON.stringify(gj));
     }
 
     //   // --------------------------------------------------
     //   // remove gojson from localstorage
 
-    //   const removeJSON = document.querySelector(".remove");
+    // const removeJSON = document.querySelector(".remove");
 
-    //   removeJSON.addEventListener("click", (e) => {
-    //     e.preventDefault();
-    //     localStorage.removeItem("geojson");
+    // removeJSON.addEventListener("click", (e) => {
+    //   e.preventDefault();
+    //   localStorage.removeItem("geojson");
 
-    //     Notiflix.Notify.info("All layers have been deleted");
+    //   Notiflix.Notify.info("All layers have been deleted");
 
-    //     drawnItems.eachLayer(function (layer) {
-    //       drawnItems.removeLayer(layer);
-    //     });
+    //   drawnItems.eachLayer(function (layer) {
+    //     drawnItems.removeLayer(layer);
     //   });
+    // });
 
     //   // --------------------------------------------------
     //   // load geojson from localstorage
 
-    function difference(a: any[], b: any[]) {
-      // A comparer used to determine if two entries are equal.
-      const isSameUser = (a, b) => equal(a, b);
+    // function difference(a: any[], b: any[]) {
+    //   // A comparer used to determine if two entries are equal.
+    //   const isSameUser = (a, b) => equal(a, b);
 
-      // Get items that only occur in the left array,
-      // using the compareFunction to determine equality.
-      const onlyInLeft = (left, right, compareFunction) =>
-        left.filter(
-          (leftValue) =>
-            !right.some((rightValue) => compareFunction(leftValue, rightValue))
-        );
+    //   // Get items that only occur in the left array,
+    //   // using the compareFunction to determine equality.
+    //   const onlyInLeft = (left, right, compareFunction) =>
+    //     left.filter(
+    //       (leftValue) =>
+    //         !right.some((rightValue) => compareFunction(leftValue, rightValue))
+    //     );
 
-      const onlyInA = onlyInLeft(a, b, isSameUser);
-      const onlyInB = onlyInLeft(b, a, isSameUser);
+    //   const onlyInA = onlyInLeft(a, b, isSameUser);
+    //   const onlyInB = onlyInLeft(b, a, isSameUser);
 
-      const result = [...onlyInA, ...onlyInB];
-      return result;
-    }
+    //   const result = [...onlyInA, ...onlyInB];
+    //   return result;
+    // }
 
     function onlyInA(a: any[], b: any[]) {
       // A comparer used to determine if two entries are equal.
@@ -346,10 +396,6 @@
       const drawnGeojson = (drawnItems.toGeoJSON() as any).features || {};
 
       const newGeojson = onlyInA(geojsonFromLocalStorage, drawnGeojson);
-
-      // console.log(geojsonFromLocalStorage);
-      // console.log(drawnGeojson);
-      // console.log(newGeojson);
 
       if (newGeojson) {
         setGeojsonToMap(newGeojson);
@@ -409,11 +455,25 @@
     //     reader.readAsText(input.files[0]);
     //   }
 
+    // map.on("click", function (e) {
+    //   if (!map.pm.globalRemovalModeEnabled()) {
+    //     console.log("click");
+    //   }
+    //   console.log(e)
+    // });
+
     document
       .querySelector("#aDelete")
       .addEventListener("click", function (event) {
         event.preventDefault();
-        console.log(localStorage.getItem("geojson"));
+        customGlobalRemovalMode = !customGlobalRemovalMode;
+        // console.log(localStorage.getItem("geojson"));
+
+        const geojsonFromLocalStorage = JSON.parse(
+          localStorage.getItem("geojson")
+        ).features;
+        // const drawnGeojson = (drawnItems.toGeoJSON() as any).features || {};
+        console.log(geojsonFromLocalStorage);
         // localStorage.removeItem("geojson");
 
         // Notiflix.Notify.info("All layers have been deleted");
@@ -421,13 +481,24 @@
         // drawnItems.eachLayer(function (layer) {
         //   drawnItems.removeLayer(layer);
         // });
-        map.pm.toggleGlobalRemovalMode();
+
+        drawnItems.eachLayer((layer) => {
+          layer.on("click", function () {
+            console.log(layer);
+            // layer.remove();
+            drawnItems.removeLayer(layer);
+            // layer.removeFrom(map)
+          });
+        });
+
+        // map.pm.toggleGlobalRemovalMode();
         // console.log("niggas");
       });
-    drawnItems.on("click", function (event) {
-      console.log(event);
-      drawnItems.removeLayer(event.layer);
-    });
+
+    // drawnItems.on("click", function (event) {
+    //   console.log(event);
+    //   drawnItems.removeLayer(event.layer);
+    // });
 
     document
       .querySelector("#aSaveLS")
@@ -444,9 +515,10 @@
         console.log("aLoadLS");
       });
 
-    map.pm.addControls({ removalMode: false });
+    // map.pm.addControls({ removalMode: false });
 
     loadGeojsonLS();
+    setLayersStyle();
   });
 </script>
 
@@ -503,3 +575,4 @@
     </div>
   </div>
 </div>
+<div>{customGlobalRemovalMode}</div>
