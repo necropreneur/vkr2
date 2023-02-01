@@ -151,9 +151,9 @@
       setLayersStyle();
     });
 
-    var baseLayerStyle = "leaflet-interactive fill-current ";
-    var mouseoverStyle = baseLayerStyle + "opacity-50 text-red-500";
-    var mouseoutStyle = baseLayerStyle + "opacity-50 text-red-900";
+    var baseLayerStyle = "leaflet-interactive fill-current stroke-0 ";
+    var mouseoverStyle = baseLayerStyle + "opacity-80 text-red-500";
+    var mouseoutStyle = baseLayerStyle + "opacity-20 text-orange-500";
 
     function setLayersStyle() {
       drawnItems.eachLayer(function (layer) {
@@ -230,17 +230,17 @@
       if (newGeojson) {
         setGeojsonToMap(newGeojson);
       }
-      setLayersStyle()
+      setLayersStyle();
     }
 
     function setGeojsonToMap(geojson) {
       const feature = L.geoJSON(geojson, {
         style: function (feature) {
           return {
-            color: "currentColor",
-            weight: 2,
+            color: "none",
+            // weight: 4,
             opacity: 1,
-            fillColor: "fillCurrent",
+            // fillColor: "fillCurrent",
             fillOpacity: 1,
           };
         },
