@@ -10,12 +10,12 @@
 </svelte:head>
 
 <section>
-  <!-- <div class="flex">
+  <div class="flex">
     <div class="inset-0">
       <Menu />
     </div>
     <Panolens />
-  </div> -->
-  <Map />
+  </div>
+  <!-- <Map /> -->
 
 </section>

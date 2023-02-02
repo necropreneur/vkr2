@@ -15,10 +15,11 @@
     .href;
   import Notiflix from "notiflix";
   import { saveAs } from "file-saver";
-  import Search from "$lib/icons/search.svg";
   import Icon from "../lib/Icon.svelte";
   // var equal = require('deep-equal');
   import equal from "deep-equal";
+  import "leaflet.fullscreen/Control.FullScreen.js";
+  import "leaflet.fullscreen/Control.FullScreen.css";
 
   var customGlobalRemovalMode = false;
 
@@ -38,9 +39,13 @@
       zoomSnap: 0,
       // zoomSnap: 1,
       zoomDelta: 0.3,
-      // maxBounds: bounds,
+      maxBounds: bounds,
       attributionControl: false,
       renderer: L.svg(),
+      fullscreenControl: true,
+      // fullscreenControlOptions: {
+      //   position: "topleft",
+      // },
     });
     map.pm.addControls({
       cutPolygon: true,
@@ -80,6 +85,32 @@
       toggle: true,
       actions: ["finishMode"],
     });
+
+    // map.addControl(
+    //   new L.Control.Fullscreen({
+    //     title: {
+    //       false: "View Fullscreen",
+    //       true: "Exit Fullscreen",
+    //     },
+    //   })
+    // );
+
+    // L.control
+    //   .fullscreen({
+    //     position: "bottomright",
+    //     title: "Plein écran",
+    //     titleCancel: "Quitter le mode plein écran",
+    //     content: null,
+    //   })
+    //   .addTo(map);
+
+    // map.on("fullscreenchange", function () {
+    //   if (map.isFullscreen()) {
+    //     console.log("entered fullscreen");
+    //   } else {
+    //     console.log("exited fullscreen");
+    //   }
+    // });
 
     map.pm.setGlobalOptions({ snappable: false });
 
@@ -245,17 +276,7 @@
           };
         },
         pointToLayer: (feature, latlng) => {
-          if (feature.properties.type === "circle") {
-            return L.circle(latlng, {
-              radius: feature.properties.radius,
-            });
-          } else if (feature.properties.type === "circlemarker") {
-            return L.circleMarker(latlng, {
-              radius: 10,
-            });
-          } else {
-            return new L.Marker(latlng);
-          }
+          return new L.Marker(latlng);
         },
         onEachFeature: function (feature, layer) {
           // console.log((feature.geometry as any).coordinates.toString());
@@ -355,7 +376,7 @@
   });
 </script>
 
-<div id="map" class="w-[900px] h-[500px] !bg-white">
+<div id="map" class="w-[382px] h-full !bg-white">
   <div class="absolute z-[1000] right-0">
     <div class="float-right  mr-[10px] mt-[10px]">
       <div class="border-[1.6px] rounded-[4px] bg-white">

@@ -5,6 +5,7 @@
   import { subscribe } from "svelte/internal";
   import Search from "$lib/icons/search.svg";
   import Floor2 from "$lib/floors/2floor.png";
+  import Map from "./Map.svelte";
 
   // const items = Array.from({ length: 50 }).map((_, i) => `teacher ${i}`);
   const teachers = [
@@ -150,9 +151,9 @@
     </div>
     <div class="">
       <div
-        class="w-full h-[330px] relative z-0 rounded-xl border-zinc-300 border-[3px] p-4"
+        class="w-full h-[330px] relative z-0 rounded-xl border-zinc-300 border-[3px]"
       >
-        <div class="absolute top-[calc(50%-8px)] left-[80px] z-0">
+        <!-- <div class="absolute top-[calc(50%-8px)] left-[80px] z-0">
           <div
             class="w-4 h-4 rounded-full border-2 border-red-500 hover:bg-red-500 transition duration-500 ease-out"
             on:click={() => console.log("hello")}
@@ -163,11 +164,12 @@
         </div>
         <div class="absolute top-[calc(50%-8px)] left-[240px] z-0">
           <div class="bg-red-500 w-4 h-4 rounded-full" />
-        </div>
+        </div> -->
         <!-- <div class="z-10"> -->
         <!-- <Icon name="2floor" class="h-full z-10" /> -->
-        <img src={Floor2} alt="background image" class="m-auto h-full z-10"/>
+        <!-- <img src={Floor2} alt="background image" class="m-auto h-full z-10"/> -->
         <!-- </div> -->
+        <Map />
       </div>
     </div>
   </div>

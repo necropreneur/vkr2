@@ -30,8 +30,10 @@
 		"deep-equal": "^2.2.0",
 		"file-saver": "^2.0.5",
 		"leaflet": "^1.9.3",
+		"leaflet.fullscreen": "^2.4.0",
 		"notiflix": "^3.2.6",
 		"panolens": "^0.12.1",
+		"screenfull": "^6.0.2",
 		"svrollbar": "^0.12.0"
 	}
 }
