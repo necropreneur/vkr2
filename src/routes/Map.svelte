@@ -22,6 +22,7 @@
   import "leaflet.fullscreen/Control.FullScreen.css";
 
   var customGlobalRemovalMode = false;
+  var fullscreen: boolean = true;
 
   onMount(() => {
     const mapContainer = document.querySelector("#map") as HTMLElement;
@@ -42,11 +43,24 @@
       maxBounds: bounds,
       attributionControl: false,
       renderer: L.svg(),
-      fullscreenControl: true,
+
+      // fullscreenControl: true,
       // fullscreenControlOptions: {
       //   position: "topleft",
       // },
     });
+    L.control
+      .fullscreen({
+        position: "topleft", // change the position of the button can be topleft, topright, bottomright or bottomleft, default topleft
+        title: "Show me the fullscreen !", // change the title of the button, default Full Screen
+        titleCancel: "Exit fullscreen mode", // change the title of the button when fullscreen is on, default Exit Full Screen
+        content: null, // change the content of the button, can be HTML, default null
+        forceSeparateButton: true, // force separate button to detach from zoom buttons, default false
+        forcePseudoFullscreen: true, // force use of pseudo full screen even if full screen API is available, default false
+        fullscreenElement: false, // Dom element to render in full screen, false by default, fallback to map._container
+      })
+      .addTo(map);
+
     map.pm.addControls({
       cutPolygon: true,
       download: true,
@@ -59,7 +73,6 @@
       drawRectangle: true,
       drawText: true,
       editMode: true,
-      fullscreenControl: true,
       positions: {
         draw: "topleft",
         edit: "topleft",
@@ -74,17 +87,17 @@
       // drawCircle: false,
     });
 
-    map.pm.Toolbar.createCustomControl({
-      name: "Remove layers",
-      block: "edit",
-      className: "leaflet-pm-icon-delete xyz-class",
-      title: "Edit layers",
-      afterClick: () => {
-        map.pm.toggleGlobalEditMode();
-      },
-      toggle: true,
-      actions: ["finishMode"],
-    });
+    // map.pm.Toolbar.createCustomControl({
+    //   name: "Remove layers",
+    //   block: "edit",
+    //   className: "leaflet-pm-icon-delete xyz-class",
+    //   title: "Edit layers",
+    //   afterClick: () => {
+    //     map.pm.toggleGlobalEditMode();
+    //   },
+    //   toggle: true,
+    //   actions: ["finishMode"],
+    // });
 
     // map.addControl(
     //   new L.Control.Fullscreen({
@@ -104,13 +117,58 @@
     //   })
     //   .addTo(map);
 
-    // map.on("fullscreenchange", function () {
-    //   if (map.isFullscreen()) {
-    //     console.log("entered fullscreen");
-    //   } else {
-    //     console.log("exited fullscreen");
-    //   }
-    // });
+    map.on("fullscreenchange", function () {
+      // if (map.isFullscreen()) {
+      //   console.log("entered fullscreen");
+      // } else {
+      //   console.log("exited fullscreen");
+      // }
+      console.log("hello");
+    });
+
+    function hideControls() {
+      const options = {
+        cutPolygon: false,
+        download: false,
+        dragMode: false,
+        drawPolygon: false,
+        drawPolyline: false,
+        drawRectangle: false,
+        drawText: false,
+        editMode: false,
+        removalMode: false,
+        rotateMode: false,
+      };
+      map.pm.addControls(options);
+      map.zoomControl.remove();
+      fullscreen = false;
+    }
+
+    function showControls() {
+      map.zoomControl.addTo(map);
+      const options = {
+        cutPolygon: true,
+        download: true,
+        dragMode: true,
+        drawPolygon: true,
+        drawPolyline: true,
+        drawRectangle: true,
+        drawText: true,
+        editMode: true,
+        removalMode: true,
+        rotateMode: true,
+      };
+      map.pm.addControls(options);
+      fullscreen = true;
+    }
+
+    map.on("enterFullscreen", function () {
+      showControls();
+    });
+
+    map.on("exitFullscreen", function () {
+      hideControls();
+    });
 
     map.pm.setGlobalOptions({ snappable: false });
 
@@ -373,41 +431,44 @@
 
     loadGeojsonLS();
     // setLayersStyle();
+    hideControls();
+    // fullscreen = false;
   });
 </script>
 
 <div id="map" class="w-[382px] h-full !bg-white">
-  <div class="absolute z-[1000] right-0">
-    <div class="float-right  mr-[10px] mt-[10px]">
-      <div class="border-[1.6px] rounded-[4px] bg-white">
-        <a href="" id="aDelete">
-          <div class="p-[5px] border-b-[1px]">
-            <Icon
-              name="Remove"
-              class="w-[20px] h-[20px] text-orange-600"
-              fill="currentColor"
-            />
-          </div>
-        </a>
-        <a href="" id="aSaveLS">
-          <div class="p-[5px] border-b-[1px]">
-            <Icon
-              name="saveLs"
-              class="w-[20px] h-[20px] text-orange-600"
-              fill="currentColor"
-            />
-          </div>
-        </a>
-        <a href="" id="aLoadLS">
-          <div class="p-[5px] border-b-[1px]">
-            <Icon
-              name="loadLs"
-              class="w-[20px] h-[20px] text-orange-600"
-              fill="currentColor"
-            />
-          </div>
-        </a>
-        <!-- <a href="" id="aSaveLS">
+  {#if fullscreen}
+    <div class="absolute z-[1000] right-0">
+      <div class="float-right  mr-[10px] mt-[10px]">
+        <div class="border-[1.6px] rounded-[4px] bg-white">
+          <a href="" id="aDelete">
+            <div class="p-[5px] border-b-[1px]">
+              <Icon
+                name="Remove"
+                class="w-[20px] h-[20px] text-orange-600"
+                fill="currentColor"
+              />
+            </div>
+          </a>
+          <a href="" id="aSaveLS">
+            <div class="p-[5px] border-b-[1px]">
+              <Icon
+                name="saveLs"
+                class="w-[20px] h-[20px] text-orange-600"
+                fill="currentColor"
+              />
+            </div>
+          </a>
+          <a href="" id="aLoadLS">
+            <div class="p-[5px] border-b-[1px]">
+              <Icon
+                name="loadLs"
+                class="w-[20px] h-[20px] text-orange-600"
+                fill="currentColor"
+              />
+            </div>
+          </a>
+          <!-- <a href="" id="aSaveLS">
           <div class="p-[5px] border-b-[1px]">
             <Icon
               name="saveF"
@@ -425,8 +486,9 @@
             />
           </div>
         </a> -->
+        </div>
       </div>
     </div>
-  </div>
+  {/if}
 </div>
 <div>{customGlobalRemovalMode}</div>
