@@ -1,31 +1,60 @@
 <script lang="ts">
-  import * as L from "leaflet";
-  import { onMount } from "svelte";
-  import "@geoman-io/leaflet-geoman-free";
-  import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
-  import "leaflet/dist/leaflet.css";
-  const bg = new URL("$lib/floors/2floor.png", import.meta.url).href;
-  const downloadIcon = new URL(
-    "$lib/icons/controls/download.svg",
-    import.meta.url
-  ).href;
-  const uploadIcon = new URL("$lib/icons/controls/upload.svg", import.meta.url)
-    .href;
-  const saveIcon = new URL("$lib/icons/controls/save.svg", import.meta.url)
-    .href;
-  import Notiflix from "notiflix";
-  import { saveAs } from "file-saver";
-  import Icon from "../lib/Icon.svelte";
+  import * as L from 'leaflet';
+  import { onMount } from 'svelte';
+  import '@geoman-io/leaflet-geoman-free';
+  import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+  import 'leaflet/dist/leaflet.css';
+  // const bg = new URL("$lib/floors/2floor.png", import.meta.url).href;
+  const bg = new URL('$lib/floors/new_floor.svg', import.meta.url).href;
+  const downloadIcon = new URL('$lib/icons/controls/download.svg', import.meta.url).href;
+  const uploadIcon = new URL('$lib/icons/controls/upload.svg', import.meta.url).href;
+  const saveIcon = new URL('$lib/icons/controls/save.svg', import.meta.url).href;
+  import Notiflix from 'notiflix';
+  import { saveAs } from 'file-saver';
+  import Icon from '../lib/Icon.svelte';
   // var equal = require('deep-equal');
-  import equal from "deep-equal";
-  import "leaflet.fullscreen/Control.FullScreen.js";
-  import "leaflet.fullscreen/Control.FullScreen.css";
+  import equal from 'deep-equal';
+  import 'leaflet.fullscreen/Control.FullScreen.js';
+  import 'leaflet.fullscreen/Control.FullScreen.css';
+
+  // import { DateInput } from 'date-picker-svelte';
+  import { Datepicker } from 'flowbite-svelte';
+
+  class Table {
+    constructor(
+      public necessary_equipment: string = '',
+      public permanent_visit: boolean = false,
+      public dateFrom: Date = new Date(),
+      public dateTo: Date = new Date(),
+    ) {}
+  }
+
+  let tables: { [key: number]: Table } = {
+    0: new Table(),
+    1: new Table(),
+  };
 
   var customGlobalRemovalMode = false;
   var fullscreen: boolean = true;
 
+  const COLORS = {
+    EMPTY: '#303030',
+    EMPTY_HOVER: '#474747',
+  };
+
+  let current_table_id: number = 0;
+
+  // function updateBoundVal() {
+  //   current_table_id
+  // }
+
   onMount(() => {
-    const mapContainer = document.querySelector("#map") as HTMLElement;
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/datepicker.min.js';
+    script.async = true;
+    document.head.appendChild(script);
+
+    const mapContainer = document.querySelector('#map') as HTMLElement;
 
     var bounds = L.latLngBounds([
       [0, 0],
@@ -51,9 +80,9 @@
     });
     L.control
       .fullscreen({
-        position: "topleft", // change the position of the button can be topleft, topright, bottomright or bottomleft, default topleft
-        title: "Show me the fullscreen !", // change the title of the button, default Full Screen
-        titleCancel: "Exit fullscreen mode", // change the title of the button when fullscreen is on, default Exit Full Screen
+        position: 'topleft', // change the position of the button can be topleft, topright, bottomright or bottomleft, default topleft
+        title: 'Show me the fullscreen !', // change the title of the button, default Full Screen
+        titleCancel: 'Exit fullscreen mode', // change the title of the button when fullscreen is on, default Exit Full Screen
         content: null, // change the content of the button, can be HTML, default null
         forceSeparateButton: true, // force separate button to detach from zoom buttons, default false
         forcePseudoFullscreen: true, // force use of pseudo full screen even if full screen API is available, default false
@@ -67,16 +96,16 @@
       dragMode: true,
       drawCircle: false,
       drawCircleMarker: false,
-      drawMarker: false,
+      drawMarker: true,
       drawPolygon: true,
       drawPolyline: true,
       drawRectangle: true,
       drawText: true,
       editMode: true,
       positions: {
-        draw: "topleft",
-        edit: "topleft",
-        custom: "topright",
+        draw: 'topleft',
+        edit: 'topleft',
+        custom: 'topright',
       },
       removalMode: true,
       rotateMode: true,
@@ -117,13 +146,13 @@
     //   })
     //   .addTo(map);
 
-    map.on("fullscreenchange", function () {
+    map.on('fullscreenchange', function () {
       // if (map.isFullscreen()) {
       //   console.log("entered fullscreen");
       // } else {
       //   console.log("exited fullscreen");
       // }
-      console.log("hello");
+      console.log('hello');
     });
 
     function hideControls() {
@@ -162,11 +191,12 @@
       fullscreen = true;
     }
 
-    map.on("enterFullscreen", function () {
+    map.on('enterFullscreen', function () {
       showControls();
+      setupCustomControls();
     });
 
-    map.on("exitFullscreen", function () {
+    map.on('exitFullscreen', function () {
       hideControls();
     });
 
@@ -189,9 +219,9 @@
     // Nofiflix options
 
     Notiflix.Notify.init({
-      width: "280px",
-      position: "right-bottom",
-      distance: "10px",
+      width: '280px',
+      position: 'right-bottom',
+      distance: '10px',
     });
 
     //   // Drow polygon, circle, rectangle, polyline
@@ -233,29 +263,54 @@
     //   drawnItems.addLayer(layer);
     // });
 
-    map.on("pm:create", (event) => {
+    map.on('pm:create', (event) => {
       console.log(event);
       let layer = event.layer;
       drawnItems.addLayer(layer);
       setLayersStyle();
     });
 
-    var baseLayerStyle = "leaflet-interactive fill-current stroke-0 ";
-    var mouseoverStyle = baseLayerStyle + "opacity-80 text-red-500";
-    var mouseoutStyle = baseLayerStyle + "opacity-20 text-orange-500";
+    var baseLayerStyle = 'leaflet-interactive fill-current stroke-0 ';
+    var mouseoverStyle = baseLayerStyle + ' opacity-100 text-zinc-500';
+    var mouseoutStyle = baseLayerStyle + ' opacity-100 text-zinc-700';
 
     function setLayersStyle() {
-      drawnItems.eachLayer(function (layer) {
+      let stepNumber = 0;
+      drawnItems.eachLayer(function (layer, index) {
         if (layer instanceof L.Polygon) {
-          layer._path.setAttribute("class", mouseoutStyle);
-          layer.on("mouseover", function (e) {
-            layer._path.setAttribute("class", mouseoverStyle);
+          layer._path.setAttribute('class', mouseoutStyle);
+          layer._path.setAttribute('fill-opacity', 1);
+          layer.on('mouseover', function (e) {
+            layer._path.setAttribute('class', mouseoverStyle);
           });
-          layer.on("mouseout", function (e) {
-            layer._path.setAttribute("class", mouseoutStyle);
+          layer.on('mouseout', function (e) {
+            layer._path.setAttribute('class', mouseoutStyle);
+          });
+          // layer.
+
+          function hello() {
+            console.log('Hello!');
+          }
+          layer.feature['table_id'] = stepNumber;
+          layer.on('click', (event) => {
+            hello();
+            current_table_id = layer.feature['table_id'];
+            // layer.
           });
         }
+        stepNumber += 1;
       });
+    }
+
+    function getLayer(layer_id: number) {
+      let layers = drawnItems.getLayers();
+      let returnLayer;
+      layers.forEach((layer: L.Polygon) => {
+        if (layer.feature['table_id'] === layer_id) {
+          returnLayer = layer;
+        }
+      });
+      return returnLayer;
     }
 
     function removeDuplicates(arr: any) {
@@ -280,15 +335,15 @@
       let gjFeatures = (drawnItems.toGeoJSON() as any).features;
 
       if (Object.keys(gjFeatures).length === 0) {
-        Notiflix.Notify.failure("You must have some data to save it");
+        Notiflix.Notify.failure('You must have some data to save it');
         return;
       } else {
-        Notiflix.Notify.success("The data has been saved to localstorage");
+        Notiflix.Notify.success('The data has been saved to localstorage');
       }
 
       gj.features = removeDuplicates(gjFeatures);
       console.log(drawnItems);
-      localStorage.setItem("geojson", JSON.stringify(gj));
+      localStorage.setItem('geojson', JSON.stringify(gj));
     }
 
     function onlyInA(a: any[], b: any[]) {
@@ -299,8 +354,7 @@
       // using the compareFunction to determine equality.
       const onlyInLeft = (left, right, compareFunction) =>
         left.filter(
-          (leftValue) =>
-            !right.some((rightValue) => compareFunction(leftValue, rightValue))
+          (leftValue) => !right.some((rightValue) => compareFunction(leftValue, rightValue)),
         );
 
       const onlyInA = onlyInLeft(a, b, isSameUser);
@@ -309,9 +363,7 @@
     }
 
     function loadGeojsonLS() {
-      const geojsonFromLocalStorage = JSON.parse(
-        localStorage.getItem("geojson")
-      ).features;
+      const geojsonFromLocalStorage = JSON.parse(localStorage.getItem('geojson')).features;
       const drawnGeojson = (drawnItems.toGeoJSON() as any).features || {};
 
       const newGeojson = onlyInA(geojsonFromLocalStorage, drawnGeojson);
@@ -326,7 +378,7 @@
       const feature = L.geoJSON(geojson, {
         style: function (feature) {
           return {
-            color: "none",
+            color: COLORS.EMPTY,
             // weight: 4,
             opacity: 1,
             // fillColor: "fillCurrent",
@@ -344,9 +396,11 @@
           const coordinates = (feature.geometry as any).coordinates.toString();
           const result = coordinates.match(/[^,]+,[^,]+/g);
 
-          layer.bindPopup(
-            "<span>Coordinates:<br>" + result.join("<br>") + "</span>"
-          );
+          // layer.bindPopup(
+          //   "<span>Coordinates:<br>" + result.join("<br>") + "</span>"
+          // );
+          // feature.properties = { classroom: "305" };
+          // console.log(feature.properties);
         },
       }).addTo(map);
       // feature._path.setAttribute('class', 'leaflet-interactive fill-current opacity-50 text-red-500')
@@ -371,7 +425,6 @@
     //     };
     //     reader.readAsText(input.files[0]);
     //   }
-
     // map.on("click", function (e) {
     //   if (!map.pm.globalRemovalModeEnabled()) {
     //     console.log("click");
@@ -379,16 +432,22 @@
     //   console.log(e)
     // });
 
-    document
-      .querySelector("#aDelete")
-      .addEventListener("click", function (event) {
+    // drawnItems.eachLayer((layer) => {
+    //   layer.on("click", function () {
+    //     console.log(layer);
+    //     // layer.remove();
+    //     // drawnItems.removeLayer(layer);
+    //     // layer.removeFrom(map)
+    //   });
+    // });
+
+    function setupCustomControls() {
+      document.querySelector('#aDelete').addEventListener('click', function (event) {
         event.preventDefault();
         customGlobalRemovalMode = !customGlobalRemovalMode;
         // console.log(localStorage.getItem("geojson"));
 
-        const geojsonFromLocalStorage = JSON.parse(
-          localStorage.getItem("geojson")
-        ).features;
+        const geojsonFromLocalStorage = JSON.parse(localStorage.getItem('geojson')).features;
         // const drawnGeojson = (drawnItems.toGeoJSON() as any).features || {};
         console.log(geojsonFromLocalStorage);
         // localStorage.removeItem("geojson");
@@ -400,7 +459,7 @@
         // });
 
         drawnItems.eachLayer((layer) => {
-          layer.on("click", function () {
+          layer.on('click', function () {
             console.log(layer);
             // layer.remove();
             drawnItems.removeLayer(layer);
@@ -412,83 +471,99 @@
         // console.log("niggas");
       });
 
-    document
-      .querySelector("#aSaveLS")
-      .addEventListener("click", function (event) {
+      document.querySelector('#aSaveLS').addEventListener('click', function (event) {
         event.preventDefault();
         saveGeojsonLS();
       });
 
-    document
-      .querySelector("#aLoadLS")
-      .addEventListener("click", function (event) {
+      document.querySelector('#aLoadLS').addEventListener('click', function (event) {
         event.preventDefault();
         loadGeojsonLS();
-        console.log("aLoadLS");
+        console.log('aLoadLS');
       });
-
-    // map.pm.addControls({ removalMode: false });
+    }
+    setupCustomControls();
 
     loadGeojsonLS();
-    // setLayersStyle();
-    hideControls();
-    // fullscreen = false;
+    // hideControls();
   });
 </script>
 
-<div id="map" class="w-[382px] h-full !bg-white">
+<svelte:head>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/flowbite.min.css"
+    rel="stylesheet"
+  />
+</svelte:head>
+
+<div id="map" class="w-full h-screen !bg-gpt-bg">
   {#if fullscreen}
     <div class="absolute z-[1000] right-0">
       <div class="float-right  mr-[10px] mt-[10px]">
-        <div class="border-[1.6px] rounded-[4px] bg-white">
+        <div class="border-[1.6px] rounded-[4px]">
           <a href="" id="aDelete">
             <div class="p-[5px] border-b-[1px]">
-              <Icon
-                name="Remove"
-                class="w-[20px] h-[20px] text-orange-600"
-                fill="currentColor"
-              />
+              <Icon name="Remove" class="w-[20px] h-[20px] text-orange-600" fill="currentColor" />
             </div>
           </a>
           <a href="" id="aSaveLS">
             <div class="p-[5px] border-b-[1px]">
-              <Icon
-                name="saveLs"
-                class="w-[20px] h-[20px] text-orange-600"
-                fill="currentColor"
-              />
+              <Icon name="saveLs" class="w-[20px] h-[20px] text-orange-600" fill="currentColor" />
             </div>
           </a>
           <a href="" id="aLoadLS">
             <div class="p-[5px] border-b-[1px]">
-              <Icon
-                name="loadLs"
-                class="w-[20px] h-[20px] text-orange-600"
-                fill="currentColor"
-              />
+              <Icon name="loadLs" class="w-[20px] h-[20px] text-orange-600" fill="currentColor" />
             </div>
           </a>
-          <!-- <a href="" id="aSaveLS">
-          <div class="p-[5px] border-b-[1px]">
-            <Icon
-              name="saveF"
-              class="w-[20px] h-[20px] text-orange-600"
-              fill="currentColor"
-            />
-          </div>
-        </a>
-        <a href="" id="aSaveLS">
-          <div class="p-[5px]">
-            <Icon
-              name="loadF"
-              class="w-[20px] h-[20px] text-orange-600"
-              fill="currentColor"
-            />
-          </div>
-        </a> -->
         </div>
       </div>
     </div>
   {/if}
 </div>
-<div>{customGlobalRemovalMode}</div>
+
+<div class="w-1/3 bg-gpt-secondary-bg text-white">
+  <div class="m-auto w-fit flex-col space-y-4">
+    table id: {current_table_id}
+    <br />
+    {#if current_table_id in tables}
+      <div>Инфрмация</div>
+      <div class="!shadow-lg rounded-sm p-4 bg-gpt-secondary-bg  !shadow-orange-500/70">
+        <div>Необходимое оборудование</div>
+        <textarea
+          class="w-full bg-gpt-bg-dark  h-40 appearance-none rounded-sm mb-1 border-none focus:ring-0"
+          bind:value={tables[current_table_id].necessary_equipment}
+        />
+      </div>
+
+      <div class="!shadow-orange-500/70 rounded-sm p-4 bg-gpt-secondary-bg !shadow-lg ">
+        <div class="flex space-x-2">
+          <div>
+            <input
+              style="box-shadow: none"
+              class="relative  appearance-none rounded-sm mb-1 border-none focus:ring-0 text-orange-500"
+              type="checkbox"
+              bind:checked={tables[current_table_id].permanent_visit}
+              id="checkboxDefault"
+            />
+          </div>
+
+          <label class="inline-block pl-[0.15rem] hover:cursor-pointer" for="checkboxDefault">
+            Default checkbox
+          </label>
+        </div>
+
+        <div>ИЛИ</div>
+
+        <!-- <div class="flex flex-col">
+					<div>с</div>
+					<Datepicker datepickerButtons bind:value={tables[current_table_id].dateFrom}  inputClass="bg-zinc-900" />
+					<div>по</div>
+				</div>  -->
+      </div>
+    {/if}
+  </div>
+
+  <!-- <button on:click={updateBoundVal}>Update Bound Value</button> -->
+</div>
+<!-- <div>{customGlobalRemovalMode}</div> -->
