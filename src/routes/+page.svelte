@@ -1,8 +1,7 @@
 <script>
-	import Menu from './Menu.svelte';
-	import Panolens from './Panolens.svelte';
 	import Map from './Map.svelte';
-	import Fabric from './Fabric.svelte';
+	import TalkingRoom from './TalkingRoom.svelte';
+	import Workspace from './Workspace.svelte';
 </script>
 
 <svelte:head>
@@ -11,12 +10,8 @@
 </svelte:head>
 
 <section>
-	<Fabric />
-
-	<!-- <Menu /> -->
-
-	<!-- <div class="flex">
-		<Map />
-	</div> -->
+	<Map />
+	<!-- <TalkingRoom /> -->
+	<!-- <Workspace /> -->
 	
 </section>

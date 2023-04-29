@@ -4,8 +4,8 @@
 
 <svg
 	{id}
-	width="111"
-	height="177"
+	width="100%"
+	height="159.4596%"
 	viewBox="0 0 111 177"
 	fill="none"
 	xmlns="http://www.w3.org/2000/svg"
