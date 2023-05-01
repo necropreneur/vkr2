@@ -2,6 +2,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import ArrowSvg from '$lib/icons/arrow.svelte';
+	import { goto } from '$app/navigation';
 
 	let arrowDiv;
 	let scaleFactor;
@@ -17,7 +18,7 @@
 				{ time: '12:00 - 13:00', booked: false },
 				{ time: '13:00 - 14:00', booked: true },
 				{ time: '14:00 - 15:00', booked: true },
-				{ time: '15:00 - 16:00', booked: false },
+				{ time: '15:00 - 16:00', booked: false }
 			]
 		},
 		{
@@ -116,6 +117,10 @@
 			}
 		});
 	});
+
+	function goBackToMenu() {
+		goto('/');
+	}
 </script>
 
 <div class="flex justify-between !bg-gpt-bg h-screen">
@@ -177,6 +182,13 @@
 		<!-- <button on:click={updateBoundVal}>Update Bound Value</button> -->
 	</div>
 	<!-- <div>{customGlobalRemovalMode}</div> -->
+	<div class="absolute bottom-0 text-white border-2 p-2 ml-4 mb-4 rounded-lg flex items-center bg-gpt-secondary-bg hover:bg-gpt-bg cursor-pointer select-none" on:click={goBackToMenu}>
+		<!-- <BackSvg /> -->
+		<div class="ml-2 w-4 scale-[200%] text-white fill-red-800/25 stroke-white stroke-[6px]">
+			<svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 100 100"><path d="M95 44.892v10.216a8.987 8.987 0 0 1-8.961 8.96h-22.8V73.3a8.958 8.958 0 0 1-13.441 7.751L28.466 68.728l-19-10.977a8.956 8.956 0 0 1 0-15.5l19-10.977 21.327-12.323A8.958 8.958 0 0 1 63.234 26.7v9.23h22.805A8.987 8.987 0 0 1 95 44.892Z" /></svg>
+		</div>
+		<div class="w-fit ml-4">Назад в меню</div>
+	</div>
 </div>
 
 <style>
@@ -185,10 +197,10 @@
 	}
 
 	.bg-red {
-		@apply bg-red-600 ;
+		@apply bg-red-600;
 	}
 
 	.bg-green {
-		@apply bg-green-600 ;
+		@apply bg-green-600;
 	}
 </style>

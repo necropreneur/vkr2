@@ -1,7 +1,7 @@
 <script>
 	import Map from './Map.svelte';
-	import TalkingRoom from './TalkingRoom.svelte';
-	import Workspace from './Workspace.svelte';
+	import TalkingRoom from './talking_room_1/+page.svelte';
+	import Workspace from './workspace_1/+page.svelte';
 </script>
 
 <svelte:head>

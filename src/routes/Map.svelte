@@ -2,9 +2,53 @@
 <script>
 	import { onMount } from 'svelte';
 	import ArrowSvg from '$lib/icons/arrow.svelte';
+	import { goto } from '$app/navigation';
+
+	// import BackSvg from '$lib/icons/back3.svelte';
 
 	let arrowDiv;
 	let scaleFactor;
+
+	let selectedRoomKey;
+
+	let rooms = {
+		workspace_1: {
+			name: 'Рабочее пространство 1',
+			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+		},
+		workspace_2: {
+			name: 'Рабочее пространство 2',
+			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+		},
+		workspace_3: {
+			name: 'Рабочее пространство 3',
+			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+		},
+		talking_room_1: {
+			name: 'Рабочее пространство 1',
+			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+		},
+		talking_room_2: {
+			name: 'Рабочее пространство 2',
+			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+		},
+		dining_room: {
+			name: 'Столовая',
+			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+		},
+		gaming_room: {
+			name: 'Игровая комната',
+			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+		},
+		exit: {
+			name: 'Выход',
+			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+		},
+		toilet: {
+			name: 'Туалет',
+			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+		}
+	};
 
 	onMount(() => {
 		const svgContainer = document.getElementById('rooms_svg_container');
@@ -22,6 +66,7 @@
 			const target = event.target;
 
 			if (target.tagName === 'path' && target.hasAttribute('id')) {
+				selectedRoomKey = target.id
 				console.log(target.id);
 			}
 		});
@@ -77,6 +122,7 @@
 			if (target.tagName !== 'path' || !target.hasAttribute('id')) {
 				const arrowDiv = document.getElementById('ArrowSvgDiv');
 				arrowDiv.style = 'position: absolute; display: none';
+				selectedRoomKey = undefined
 			}
 		});
 
@@ -84,6 +130,7 @@
 			if (event.key === 'Escape') {
 				const arrowDiv = document.getElementById('ArrowSvgDiv');
 				arrowDiv.style = 'position: absolute; display: none';
+				selectedRoomKey = undefined
 			}
 		});
 	});
@@ -105,8 +152,8 @@
 					<path id="dining_room" d="M986.798 230.845H504.607V391.648H986.798V230.845Z" fill="white" fill-opacity="0.07" stroke="white" stroke-width="8" stroke-miterlimit="10" />
 					<path id="toilet" d="M1316 6H1203V153H1316V6Z" fill="white" fill-opacity="0.07" stroke="white" stroke-width="8" stroke-miterlimit="10" />
 					<path id="workspace_1" d="M260 46H29C15.1929 46 4 57.1929 4 71V341C4 354.807 15.1929 366 29 366H260C273.807 366 285 354.807 285 341V71C285 57.1929 273.807 46 260 46Z" fill="#0085FF" fill-opacity="0.14" stroke="#0085FF" stroke-width="8" stroke-miterlimit="10" />
-					<path id="meeting_room_1" d="M591 6H397C383.193 6 372 17.1929 372 31V164C372 177.807 383.193 189 397 189H591C604.807 189 616 177.807 616 164V31C616 17.1929 604.807 6 591 6Z" fill="#F1D74B" fill-opacity="0.14" stroke="#F1D74B" stroke-width="8" stroke-miterlimit="10" />
-					<path id="meeting_room_2" d="M824 469H714C700.193 469 689 480.193 689 494V695C689 708.807 700.193 720 714 720H824C837.807 720 849 708.807 849 695V494C849 480.193 837.807 469 824 469Z" fill="#F1D74B" fill-opacity="0.14" stroke="#F1D74B" stroke-width="8" stroke-miterlimit="10" />
+					<path id="talking_room_1" d="M591 6H397C383.193 6 372 17.1929 372 31V164C372 177.807 383.193 189 397 189H591C604.807 189 616 177.807 616 164V31C616 17.1929 604.807 6 591 6Z" fill="#F1D74B" fill-opacity="0.14" stroke="#F1D74B" stroke-width="8" stroke-miterlimit="10" />
+					<path id="talking_room_2" d="M824 469H714C700.193 469 689 480.193 689 494V695C689 708.807 700.193 720 714 720H824C837.807 720 849 708.807 849 695V494C849 480.193 837.807 469 824 469Z" fill="#F1D74B" fill-opacity="0.14" stroke="#F1D74B" stroke-width="8" stroke-miterlimit="10" />
 					<path id="exit" d="M1173 6H1097V153H1173V6Z" fill="#FF0000" fill-opacity="0.12" stroke="#B13131" stroke-width="8" stroke-miterlimit="10" />
 					<path id="workspace_2" d="M603 469H29C15.1929 469 4 480.193 4 494V695C4 708.807 15.1929 720 29 720H603C616.807 720 628 708.807 628 695V494C628 480.193 616.807 469 603 469Z" fill="#0085FF" fill-opacity="0.14" stroke="#0085FF" stroke-width="8" stroke-miterlimit="10" />
 					<path id="workspace_3" d="M1241 341C1254.81 341 1266 352.193 1266 366V695C1266 708.807 1254.81 720 1241 720H935C921.193 720 910 708.807 910 695V554C910 540.193 921.193 529 935 529H1068.86C1082.67 529 1093.86 517.807 1093.86 504V366C1093.86 352.193 1105.05 341 1118.86 341H1241Z" fill="#0085FF" fill-opacity="0.14" stroke="#0085FF" stroke-width="8" stroke-miterlimit="10" />
@@ -129,20 +176,36 @@
 		</div>
 	</div>
 
-	<div class="w-1/3 bg-gpt-secondary-bg text-white">
+	<div class="w-[28%] bg-gpt-secondary-bg text-white">
 		<div class="w-full p-4 relative h-full flex flex-col justify-between">
-      <div>
-        <div>Поиск...</div>
-        <div class="mt-4">Рабочее пространство 3</div>
-        <div class="mt-4">В этом рабочем пространстве располагаются самые лучшие дизайнеры команды.</div>
-        <div class="mt-4">количество столов: 9</div>
-      </div>
-			<div class="mx-auto">
-				<div class="border-2 px-4 py-2 rounded-lg select-none ">Выберите стол на карте</div>
+			<div>
+				<div class="mx-auto w-full">
+					<div class="border-2 rounded-lg flex items-center">
+						<div class="w-10 p-2 border-r-2 bg-pink-800 rounded-l-lg">
+							<svg width="100%" height="100%" class="scale-125" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M10 1C5.02944 1 1 5.02944 1 10C1 14.9706 5.02944 19 10 19C12.125 19 14.078 18.2635 15.6177 17.0319L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.0319 15.6177C18.2635 14.078 19 12.125 19 10C19 5.02944 14.9706 1 10 1ZM3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10Z" fill="#fff" />
+							</svg>
+						</div>
+						<div class="ml-2">Поиск...</div>
+					</div>
+				</div>
+				{#if rooms[selectedRoomKey]}
+					<div class="mt-4 text-3xl">{rooms[selectedRoomKey].name}</div>
+					<div class="mt-4">{rooms[selectedRoomKey].description}</div>
+				{/if}
+			</div>
+			<div class="mx-auto w-full">
+				{#if selectedRoomKey && rooms[selectedRoomKey]}
+					{#if selectedRoomKey.includes('talking_room')}
+						<div class="px-4 py-2 rounded-lg select-none text-center bg-yellow-600 hover:bg-yellow-700 cursor-pointer" on:click={goto(selectedRoomKey)}>Перейти в переговорную</div>
+					{:else if selectedRoomKey.includes('workspace')}
+						<div class="px-4 py-2 rounded-lg select-none text-center bg-blue-600 hover:bg-blue-700 cursor-pointer" on:click={goto(selectedRoomKey)}>Перейти в рабочую комнату</div>
+					{/if}
+				{:else}
+					<div class="border-2 px-4 py-2 rounded-lg select-none text-center">Выберите комнату</div>
+				{/if}
 			</div>
 		</div>
-
-		<!-- <button on:click={updateBoundVal}>Update Bound Value</button> -->
 	</div>
 	<!-- <div>{customGlobalRemovalMode}</div> -->
 </div>
