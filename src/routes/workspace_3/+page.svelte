@@ -17,7 +17,7 @@
 	// 	}
 	// }
 
-	let tables = {
+	let tables3 = {
 		table_1: {
 			name: 'Павел Буров',
 			ocupation: '',
@@ -110,19 +110,19 @@
 		}
 	};
 
-	function saveTables() {
-		localStorage.setItem('tables', JSON.stringify(tables));
+	function savetables3() {
+		localStorage.setItem('tables3', JSON.stringify(tables3));
 	}
 
-	function loadTables() {
-		const storedTables = localStorage.getItem('tables');
-		if (storedTables) {
-			tables = JSON.parse(storedTables);
+	function loadtables3() {
+		const storedtables3 = localStorage.getItem('tables3');
+		if (storedtables3) {
+			tables3 = JSON.parse(storedtables3);
 
 			// Convert date strings back to Date objects
-			for (const key in tables) {
-				tables[key].start_date = new Date(tables[key].start_date);
-				tables[key].end_date = new Date(tables[key].end_date);
+			for (const key in tables3) {
+				tables3[key].start_date = new Date(tables3[key].start_date);
+				tables3[key].end_date = new Date(tables3[key].end_date);
 			}
 		}
 	}
@@ -131,13 +131,13 @@
 	let disabled = false;
 
 	$: if (selectedTableKey !== undefined) {
-		disabled = tables[selectedTableKey].fulltime;
+		disabled = tables3[selectedTableKey].fulltime;
 	}
 
 	function bookTable() {
-		if (selectedTableKey in tables) {
+		if (selectedTableKey in tables3) {
 			console.log('yey');
-			tables[selectedTableKey].booked = !tables[selectedTableKey].booked;
+			tables3[selectedTableKey].booked = !tables3[selectedTableKey].booked;
 		}
 	}
 
@@ -145,16 +145,16 @@
 		// Check if the room_svg_container is already in the DOM
 		const room_svg_container = document.getElementById('rooms_svg_container');
 		if (room_svg_container) {
-			// Iterate over all keys in tables
-			for (const key in tables) {
+			// Iterate over all keys in tables3
+			for (const key in tables3) {
 				// Get the path with the corresponding ID from room_svg_containers
 				const path = room_svg_container.querySelector(`#${key}`);
 				if (path) {
 					// If booked is false, set the fill color to red, otherwise use the original color
 					let fillColor;
 					let strokeColor;
-					if (tables[key].booked) {
-						if (!tables[key].fulltime) {
+					if (tables3[key].booked) {
+						if (!tables3[key].fulltime) {
 							// blue
 							strokeColor = 'rgb(0, 133, 255)';
 							fillColor = 'rgb(0, 133, 255)';
@@ -174,7 +174,7 @@
 	}
 
 	onMount(() => {
-		loadTables();
+		loadtables3();
 		const svgContainer = document.getElementById('rooms_svg_container');
 		const svg = document.querySelector('svg');
 		const viewBox = svg.viewBox.baseVal;
@@ -261,7 +261,7 @@
 	});
 
 	afterUpdate(() => {
-		saveTables();
+		savetables3();
 		updateColors();
 	});
 
@@ -351,29 +351,29 @@
 				<div class="mt-4 text-3xl">Бронирование</div>
 				{#if selectedTableKey}
 					<div class="mt-4">имя бронирующего</div>
-					<input class="bg-gpt-bg" bind:value={tables[selectedTableKey].name} />
+					<input class="bg-gpt-bg" bind:value={tables3[selectedTableKey].name} />
 					<div class="mt-4">Должность</div>
-					<input class="bg-gpt-bg" bind:value={tables[selectedTableKey].ocupation} />
+					<input class="bg-gpt-bg" bind:value={tables3[selectedTableKey].ocupation} />
 					<div class="mt-4">Необходимое оборудование</div>
-					<textarea class="bg-gpt-bg" bind:value={tables[selectedTableKey].devices} />
+					<textarea class="bg-gpt-bg" bind:value={tables3[selectedTableKey].devices} />
 					<div class="mt-4 flex">
 						<div>Постоянное посещение</div>
-						<div><input type="checkbox" bind:checked={tables[selectedTableKey].fulltime} /></div>
+						<div><input type="checkbox" bind:checked={tables3[selectedTableKey].fulltime} /></div>
 					</div>
 					<div class="mt-4">или</div>
 					<div class="mt-4 flex">
 						<div class={disabled ? 'text-white/50' : 'text-white'}>Начало брони</div>
-						<div><DateInput bind:value={tables[selectedTableKey].start_date} format="yyyy-MM-dd" {disabled} /></div>
+						<div><DateInput bind:value={tables3[selectedTableKey].start_date} format="yyyy-MM-dd" {disabled} /></div>
 					</div>
 					<div class="mt-4 flex">
 						<div class={disabled ? 'text-white/50' : 'text-white'}>Конец брони</div>
-						<div><DateInput bind:value={tables[selectedTableKey].end_date} format="yyyy-MM-dd" {disabled} /></div>
+						<div><DateInput bind:value={tables3[selectedTableKey].end_date} format="yyyy-MM-dd" {disabled} /></div>
 					</div>
 				{/if}
 			</div>
 			<div class="mx-auto w-full">
-				{#if selectedTableKey && tables[selectedTableKey]}
-					{#if !tables[selectedTableKey].booked}
+				{#if selectedTableKey && tables3[selectedTableKey]}
+					{#if !tables3[selectedTableKey].booked}
 						<div class="px-4 py-2 rounded-lg select-none text-center bg-green-600 hover:bg-green-700 cursor-pointer" on:click={bookTable}>Забронировать</div>
 					{:else}
 						<div class="px-4 py-2 rounded-lg select-none text-center bg-red-600 hover:bg-red-700 cursor-pointer" on:click={bookTable}>Отменить бронирование</div>

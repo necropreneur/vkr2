@@ -23,85 +23,47 @@
 		return new Date(year, month - 1, day);
 	}
 
-	let bookings = [
-		{
-			date: '01-04-2023',
-			table: [
-				{ time: '08:00 - 09:00', booked: false, description: '' },
-				{ time: '09:00 - 10:00', booked: true, description: '' },
-				{ time: '10:00 - 11:00', booked: true, description: '' },
-				{ time: '11:00 - 12:00', booked: true, description: '' },
-				{ time: '12:00 - 13:00', booked: false, description: '' },
-				{ time: '13:00 - 14:00', booked: true, description: '' },
-				{ time: '14:00 - 15:00', booked: true, description: '' },
-				{ time: '15:00 - 16:00', booked: false, description: '' }
-			]
+	let bookings1 = {
+		'01-04-2023': {
+			'08:00 - 09:00': { booked: false, description: '' },
+			'09:00 - 10:00': { booked: true, description: '' },
+			'10:00 - 11:00': { booked: true, description: '' },
+			'11:00 - 12:00': { booked: true, description: '' },
+			'12:00 - 13:00': { booked: false, description: '' },
+			'13:00 - 14:00': { booked: true, description: '' },
+			'14:00 - 15:00': { booked: true, description: '' },
+			'15:00 - 16:00': { booked: false, description: '' }
 		},
-		{
-			date: '02-04-2023',
-			table: [
-				{ time: '08:00 - 09:00', booked: true, description: '' },
-				{ time: '09:00 - 10:00', booked: true, description: '' },
-				{ time: '10:00 - 11:00', booked: false, description: '' },
-				{ time: '11:00 - 12:00', booked: true, description: '' },
-				{ time: '12:00 - 13:00', booked: false, description: '' },
-				{ time: '13:00 - 14:00', booked: true, description: '' },
-				{ time: '14:00 - 15:00', booked: true, description: '' },
-				{ time: '15:00 - 16:00', booked: false, description: '' }
-			]
+		'02-04-2023': {
+			'08:00 - 09:00': { booked: true, description: '' },
+			'09:00 - 10:00': { booked: true, description: '' },
+			'10:00 - 11:00': { booked: false, description: '' },
+			'11:00 - 12:00': { booked: true, description: '' },
+			'12:00 - 13:00': { booked: false, description: '' },
+			'13:00 - 14:00': { booked: true, description: '' },
+			'14:00 - 15:00': { booked: true, description: '' },
+			'15:00 - 16:00': { booked: false, description: '' }
 		}
-	];
-
-	bookings = {
-    '01-04-2023': {
-        '08:00 - 09:00': { booked: false, description: '' },
-        '09:00 - 10:00': { booked: true, description: '' },
-        '10:00 - 11:00': { booked: true, description: '' },
-        '11:00 - 12:00': { booked: true, description: '' },
-        '12:00 - 13:00': { booked: false, description: '' },
-        '13:00 - 14:00': { booked: true, description: '' },
-        '14:00 - 15:00': { booked: true, description: '' },
-        '15:00 - 16:00': { booked: false, description: '' }
-    },
-    '02-04-2023': {
-        '08:00 - 09:00': { booked: true, description: '' },
-        '09:00 - 10:00': { booked: true, description: '' },
-        '10:00 - 11:00': { booked: false, description: '' },
-        '11:00 - 12:00': { booked: true, description: '' },
-        '12:00 - 13:00': { booked: false, description: '' },
-        '13:00 - 14:00': { booked: true, description: '' },
-        '14:00 - 15:00': { booked: true, description: '' },
-        '15:00 - 16:00': { booked: false, description: '' }
-    }
-};
-
+	};
 
 	function checkAndCreateBooking(dateString) {
-		const existingBooking = bookings.find((booking) => booking.date === dateString);
-
-		if (!existingBooking) {
-			const newBooking = {
-				date: dateString,
-				table: [
-					{ time: '08:00 - 09:00', booked: false, description: '' },
-					{ time: '09:00 - 10:00', booked: false, description: '' },
-					{ time: '10:00 - 11:00', booked: false, description: '' },
-					{ time: '11:00 - 12:00', booked: false, description: '' },
-					{ time: '12:00 - 13:00', booked: false, description: '' },
-					{ time: '13:00 - 14:00', booked: false, description: '' },
-					{ time: '14:00 - 15:00', booked: false, description: '' },
-					{ time: '15:00 - 16:00', booked: false, description: '' }
-				]
+		if (!bookings1[dateString]) {
+			bookings1[dateString] = {
+				'08:00 - 09:00': { booked: false, description: '' },
+				'09:00 - 10:00': { booked: false, description: '' },
+				'10:00 - 11:00': { booked: false, description: '' },
+				'11:00 - 12:00': { booked: false, description: '' },
+				'12:00 - 13:00': { booked: false, description: '' },
+				'13:00 - 14:00': { booked: false, description: '' },
+				'14:00 - 15:00': { booked: false, description: '' },
+				'15:00 - 16:00': { booked: false, description: '' }
 			};
-
-			bookings.push(newBooking);
 		}
 	}
 
 	let selectedDate = new Date();
 	let selectedDateString = dateToString(selectedDate);
 	checkAndCreateBooking(selectedDateString);
-	let selectedBooking = bookings.find((booking) => booking.date === selectedDateString);
 
 	$: selectedDateString = dateToString(selectedDate);
 	$: {
@@ -112,14 +74,21 @@
 	let selectedTimeString;
 	$: console.log(selectedDateString, selectedTimeString);
 
+	$: {
+		if (selectedDateString && selectedTimeString) {
+			bookings1[selectedDateString][selectedTimeString].booked = bookings1[selectedDateString][selectedTimeString].booked;
+		}
+	}
+
 	function bookTimeSlot() {
-		const booking = bookings.find((booking) => booking.date === selectedDateString);
+		const booking = bookings1[selectedDateString];
 		if (booking) {
-			const timeSlot = booking.table.find((slot) => slot.time === selectedTimeString);
+			const timeSlot = booking[selectedTimeString];
 			if (timeSlot) {
-				timeSlot.booked = !timeSlot.booked;
+				bookings1[selectedDateString][selectedTimeString].booked = !bookings1[selectedDateString][selectedTimeString].booked;
 			}
 		}
+		console.log(bookings1[selectedDateString][selectedTimeString])
 	}
 
 	onMount(() => {
@@ -226,18 +195,17 @@
 			<div class="text-3xl text-white ">Расписание</div>
 			<div class="mt-4 flex justify-between text-white">
 				<div class="text-3xl">Выберите дату:</div>
-				<!-- <div class="text-3xl border-2 rounded-xl px-2 py-1">23.03.2023</div> -->
 				<div><DateInput format="dd-MM-yyyy" bind:value={selectedDate} placeholder="год месяц день" /></div>
 			</div>
 			<div class="mt-4 flex flex-col justify-between">
-				{#each selectedBooking.table as table}
+				{#each Object.keys(bookings1[selectedDateString]) as timeSlot}
 					<div class="flex justify-between text-white mt-4 items-center">
-						<div class="text-3xl border-2 rounded-xl px-2 py-1">{table.time}</div>
+						<div class="text-3xl border-2 rounded-xl px-2 py-1">{timeSlot}</div>
 						<div class="w-1/2">
-							{#if table.booked}
-								<div class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-red" on:click={() => (selectedTimeString = table.time)}>Забронировано</div>
+							{#if bookings1[selectedDateString][timeSlot].booked}
+								<div class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-red" on:click={() => (selectedTimeString = timeSlot)}>Забронировано</div>
 							{:else}
-								<div class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-green" on:click={() => (selectedTimeString = table.time)}>Свободно</div>
+								<div class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-green" on:click={() => (selectedTimeString = timeSlot)}>Свободно</div>
 							{/if}
 						</div>
 					</div>
@@ -251,12 +219,7 @@
 			<div>
 				<div class="mx-auto w-full">
 					<div class="border-2 rounded-lg flex items-center">
-						<div class="w-10 p-2 border-r-2 bg-pink-800 rounded-l-lg">
-							<svg width="100%" height="100%" class="scale-125" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10 1C5.02944 1 1 5.02944 1 10C1 14.9706 5.02944 19 10 19C12.125 19 14.078 18.2635 15.6177 17.0319L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.0319 15.6177C18.2635 14.078 19 12.125 19 10C19 5.02944 14.9706 1 10 1ZM3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10Z" fill="#fff" />
-							</svg>
-						</div>
-						<div class="ml-2">Поиск...</div>
+						<!-- ... search svg and text ... -->
 					</div>
 				</div>
 				<div class="mt-4 text-3xl">Бронирование</div>
@@ -271,18 +234,26 @@
 					</div>
 					<div class="mt-4 flex flex-col justify-between">
 						<div>Введите название</div>
-						<input class="bg-gpt-bg" bind:value={bookings[selectedDateString][selectedTimeString]} />
+						<input class="bg-gpt-bg" bind:value={bookings1[selectedDateString][selectedTimeString].name} />
 					</div>
 				{:else}
 					<div>Пожалуйтса, выберите дату и время (нажмите "Свободно" или "Забронировано")</div>
 				{/if}
 			</div>
 			<div class="mx-auto w-full">
-				<div class="px-4 py-2 ищк rounded-lg select-none text-center bg-green-600 hover:bg-green-700 cursor-pointer" on:click={bookTimeSlot}>Забронировать</div>
+				{#if selectedTimeString}
+					{#if !bookings1[selectedDateString][selectedTimeString].booked}
+						<div class="px-4 py-2 rounded-lg select-none text-center bg-green-600 hover:bg-green-700 cursor-pointer" on:click={bookTimeSlot}>Забронировать</div>
+					{:else}
+						<div class="px-4 py-2 rounded-lg select-none text-center bg-red-600 hover:bg-red-700 cursor-pointer" on:click={bookTimeSlot}>Отменить бронирование</div>
+					{/if}
+				{:else}
+					<div class="border-2 px-4 py-2 rounded-lg select-none text-center">Выберите бронирование</div>
+				{/if}
 			</div>
 		</div>
 
-		<!-- <button on:click={updateBoundVal}>Update Bound Value</button> -->
+		<!-- ... other parts ... -->
 	</div>
 	<!-- <div>{customGlobalRemovalMode}</div> -->
 	<div class="absolute bottom-0 text-white border-2 p-2 ml-4 mb-4 rounded-lg flex items-center bg-gpt-secondary-bg hover:bg-gpt-bg cursor-pointer select-none" on:click={goBackToMenu}>
