@@ -1,9 +1,10 @@
 <!-- src/routes/SvgComponent.svelte -->
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, afterUpdate } from 'svelte';
 	import ArrowSvg from '$lib/icons/arrow.svelte';
 	import { goto } from '$app/navigation';
 	import { DateInput } from 'date-picker-svelte';
+	import Search from '../../lib/Search.svelte';
 
 	let arrowDiv;
 	let scaleFactor;
@@ -46,6 +47,17 @@
 		}
 	};
 
+	function saveBookings2() {
+		localStorage.setItem('bookings2', JSON.stringify(bookings2));
+	}
+
+	function loadBookings2() {
+		const storedBookings2 = localStorage.getItem('bookings2');
+		if (storedBookings2) {
+			bookings2 = JSON.parse(storedBookings2);
+		}
+	}
+
 	function checkAndCreateBooking(dateString) {
 		if (!bookings2[dateString]) {
 			bookings2[dateString] = {
@@ -72,7 +84,7 @@
 		}
 	}
 	let selectedTimeString;
-	$: console.log(selectedDateString, selectedTimeString);
+	// $: console.log(selectedDateString, selectedTimeString);
 
 	$: {
 		if (selectedDateString && selectedTimeString) {
@@ -88,94 +100,52 @@
 				bookings2[selectedDateString][selectedTimeString].booked = !bookings2[selectedDateString][selectedTimeString].booked;
 			}
 		}
-		console.log(bookings2[selectedDateString][selectedTimeString]);
+		// console.log(bookings2[selectedDateString][selectedTimeString]);
 	}
 
+	function decodeTimeString(encodedString) {
+		return decodeURIComponent(encodedString);
+	}
+
+	// function stringToDate(dateString) {
+	// 	const [day, month, year] = dateString.split('-').map(Number);
+
+	// 	// Subtract 1 from the month since months are zero-based in JavaScript Date objects
+	// 	return new Date(year, month - 1, day);
+	// }
+
 	onMount(() => {
-		const svgContainer = document.getElementById('rooms_svg_container');
-		const svg = document.querySelector('svg');
-		const viewBox = svg.viewBox.baseVal;
-		const width = viewBox.width;
-		const height = viewBox.height;
-		const aspectRatio = width / height;
-		const svgContainerWidth = svgContainer.clientWidth;
-		const svgContainerHeight = svgContainer.clientHeight;
-		const svgContainerAspectRatio = svgContainerWidth / svgContainerHeight;
-		const scaleFactor = svgContainerAspectRatio > aspectRatio ? svgContainerHeight / height : svgContainerWidth / width;
+		loadBookings2();
 
-		svgContainer.addEventListener('click', (event) => {
-			const target = event.target;
-
-			if (target.tagName === 'path' && target.hasAttribute('id')) {
-				console.log(target.id);
+		const handleUrlChange = () => {
+			const urlSearchParams = new URLSearchParams(window.location.search);
+			const resultSelectedTimeString = urlSearchParams.get('selectedTimeString');
+			if (resultSelectedTimeString !== undefined && resultSelectedTimeString !== null) {
+				selectedTimeString = resultSelectedTimeString;
 			}
-		});
-		const svgContainerPaths = document.getElementById('rooms_svg_container').querySelectorAll('path');
-		let arrowDiv = document.getElementById('ArrowSvgDiv');
-		let arrowSvg = document.getElementById('ArrowSvg');
-
-		function adjustPosition(arrow_bbox, room_bbox, withTransition = false) {
-			arrowDiv.style = `position: absolute; pointer-events: none;
-      top: ${room_bbox.y + room_bbox.height / 2 - arrow_bbox.height * 0.9}px;
-      left: ${room_bbox.x + room_bbox.width / 2 - arrow_bbox.width / 2}px;
-      ${withTransition ? 'transition: all 0.3s ease;' : ''}`;
-		}
-
-		svgContainerPaths.forEach((path) => {
-			path.addEventListener('click', () => {
-				let bbox = path.getBBox();
-				let arrow_bbox = arrowSvg.getBBox();
-
-				bbox.x *= scaleFactor;
-				bbox.y *= scaleFactor;
-				bbox.width *= scaleFactor;
-				bbox.height *= scaleFactor;
-				arrow_bbox.width *= scaleFactor;
-				arrow_bbox.height *= scaleFactor;
-
-				// console.log(bbox);
-
-				if (arrowDiv.style.display === 'none') {
-					adjustPosition(arrow_bbox, bbox, false);
-					bbox = path.getBBox();
-					arrow_bbox = arrowSvg.getBBox();
-
-					bbox.x *= scaleFactor;
-					bbox.y *= scaleFactor;
-					bbox.width *= scaleFactor;
-					bbox.height *= scaleFactor;
-					arrow_bbox.width *= scaleFactor;
-					arrow_bbox.height *= scaleFactor;
-
-					adjustPosition(arrow_bbox, bbox, false);
-
-					return;
-				}
-				// Get the path's bounding box to position the image at the center
-				adjustPosition(arrow_bbox, bbox, true);
-			});
-		});
-
-		// document.addEventListener('click', (event) => {
-		// 	const target = event.target;
-
-		// 	if (target.id !== selectedTimeString && target.parent !== 'booking_button') {
-		// 		selectedTimeString = ''
-		// 	}
-		// });
+			const result = urlSearchParams.get('selectedDateString');
+			if (result !== undefined && result !== null) {
+				selectedDate = stringToDate(result);
+			}
+		};
+		window.addEventListener('popstate', handleUrlChange);
+		handleUrlChange();
 
 		document.addEventListener('keyup', (event) => {
 			if (event.key === 'Escape') {
-				selectedTimeString = ''
+				selectedTimeString = '';
 			}
 		});
-		
+	});
+
+	afterUpdate(() => {
+		saveBookings2();
+		// ... (other afterUpdate code)
 	});
 
 	function goBackToMenu() {
 		goto('/');
 	}
-	
 </script>
 
 <div class="flex justify-between !bg-gpt-bg h-screen">
@@ -217,16 +187,8 @@
 	<div class="w-[28%] bg-gpt-secondary-bg text-white">
 		<div class="w-full p-4 relative h-full flex flex-col justify-between">
 			<div>
-				<div class="mx-auto w-full">
-					<div class="border-2 rounded-lg flex items-center">
-						<div class="w-10 p-2 border-r-2 bg-pink-800 rounded-l-lg">
-							<svg width="100%" height="100%" class="scale-125" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10 1C5.02944 1 1 5.02944 1 10C1 14.9706 5.02944 19 10 19C12.125 19 14.078 18.2635 15.6177 17.0319L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.0319 15.6177C18.2635 14.078 19 12.125 19 10C19 5.02944 14.9706 1 10 1ZM3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10Z" fill="#fff" />
-							</svg>
-						</div>
-						<div class="ml-2">Поиск...</div>
-					</div>
-				</div>
+				<Search />
+
 				<div class="mt-4 text-3xl">Бронирование</div>
 				{#if selectedTimeString}
 					<div class="mt-4 flex justify-between items-center">
@@ -238,11 +200,10 @@
 						<div class="text-3xl h-fit">Время:</div>
 						<!-- <div>{selectedTimeString}</div> -->
 						<div class="text-3xl border-2 rounded-xl px-2 py-1">{selectedTimeString}</div>
-
 					</div>
 					<div class="mt-4 flex flex-col justify-between ">
 						<div class="text-3xl h-fit">Описание:</div>
-						<textarea class="bg-gpt-bg text-3xl px-4 py-2 mt-2" placeholder="Введите описание..." bind:value={bookings2[selectedDateString][selectedTimeString].name} />
+						<textarea class="bg-gpt-bg text-3xl px-4 py-2 mt-2" placeholder="Введите описание..." bind:value={bookings2[selectedDateString][selectedTimeString].description} />
 					</div>
 				{:else}
 					<div>Пожалуйтса, выберите дату и время (нажмите "Свободно" или "Забронировано")</div>

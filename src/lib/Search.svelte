@@ -1,5 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
+	import { goto } from '$app/navigation';
 
 	let rooms = {};
 	let tables1 = {};
@@ -24,8 +25,51 @@
 
 	function updateSearchResults(query) {
 		let results = [];
-		const tables = { ...tables1, ...tables2, ...tables3 };
-		const bookings = { ...bookings1, ...bookings2 };
+		const tablesData = [
+			{ data: tables1, location: 'workspace_1' },
+			{ data: tables2, location: 'workspace_2' },
+			{ data: tables3, location: 'workspace_3' }
+		];
+
+		const bookingsData = [
+			{ data: bookings1, location: 'talking_room_1' },
+			{ data: bookings2, location: 'talking_room_2' }
+		];
+
+		// Search names in tables
+		for (const tableInfo of tablesData) {
+			for (const tableKey in tableInfo.data) {
+				const table = tableInfo.data[tableKey];
+				if (table.name.toLowerCase().includes(query.toLowerCase())) {
+					results.push({
+						type: 'table',
+						name: table.name,
+						key: tableKey,
+						location: tableInfo.location
+					});
+				}
+			}
+		}
+
+		// Search rooms by name in bookings
+		for (const bookingInfo of bookingsData) {
+			for (const bookingKey in bookingInfo.data) {
+				const booking = bookingInfo.data[bookingKey];
+				for (const timeSlot in booking) {
+					const room = booking[timeSlot];
+					if (room.booked && room.description.toLowerCase().includes(query.toLowerCase())) {
+						results.push({
+							type: 'booking',
+							name: room.description,
+							key: bookingKey,
+							time: timeSlot,
+							location: bookingInfo.location
+						});
+					}
+				}
+			}
+		}
+		console.log(bookingsData)
 
 		// Search rooms by name
 		for (const roomKey in rooms) {
@@ -39,36 +83,7 @@
 				});
 			}
 		}
-
-		// Search names in tables
-		for (const tableKey in tables) {
-			const table = tables[tableKey];
-			if (table.name.toLowerCase().includes(query.toLowerCase())) {
-				results.push({
-					type: 'table',
-					name: table.name,
-					key: tableKey,
-					location: 'tables'
-				});
-			}
-		}
-
-		// Search rooms by name in bookings
-		for (const bookingKey in bookings) {
-			const booking = bookings[bookingKey];
-			for (const timeSlot in booking) {
-				const room = booking[timeSlot];
-				if (room.booked && room.description.toLowerCase().includes(query.toLowerCase())) {
-					results.push({
-						type: 'booking',
-						name: room.description,
-						key: bookingKey,
-						time: timeSlot,
-						location: 'bookings'
-					});
-				}
-			}
-		}
+		// console.log(rooms);
 
 		searchResults = results;
 	}
@@ -82,102 +97,75 @@
 	let resultsElem;
 
 	onMount(() => {
-		if (typeof window !== 'undefined') {
-			const data = loadDataFromLocalStorage();
-			rooms = data.rooms;
-			tables1 = data.tables1;
-			tables2 = data.tables2;
-			tables3 = data.tables3;
-			bookings1 = data.bookings1;
-			bookings2 = data.bookings2;
-		}
+		const data = loadDataFromLocalStorage();
+		rooms = data.rooms;
+		tables1 = data.tables1;
+		tables2 = data.tables2;
+		tables3 = data.tables3;
+		bookings1 = data.bookings1;
+		bookings2 = data.bookings2;
 
 		inputElem.focus();
 	});
 
 	function handleResultClick(result) {
-		console.log(result);
+		if (result.type === 'room') {
+			goto(`/?selectedRoomKey=${result.key}`);
+		} else {
+			console.log(result);
+		}
+
+		if (result.type === 'table') {
+			goto(`/${result.location}?selectedTableKey=${result.key}`);
+		} else {
+			console.log(result);
+		}
+
+		if (result.type === 'booking') {
+			goto(`/${result.location}?selectedDateString=${result.key}&selectedTimeString=${result.time}`);
+		} else {
+			console.log(result);
+		}
 		// Handle the click on the search result
 	}
 </script>
 
-<input type="text" value={searchQuery} on:input={handleInput} placeholder="Search..." autocomplete="off" bind:this={inputElem} />
-
-{#if searchQuery}
-	<div id="search-results" bind:this={resultsElem}>
-		{#if searchResults.length > 0}
-			{#each searchResults as result}
-				<div class="result" on:click={() => handleResultClick(result)}>
-					{#if result.type === 'room'}
-						<span class="result-type">Room</span>
-					{:else if result.type === 'table'}
-						<span class="result-type">Table</span>
-					{:else}
-						<span class="result-type">Booking</span>
-					{/if}
-					<span class="result-name">{result.name}</span>
-					{#if result.location}
-						<span class="result-location">{result.location}</span>
-					{/if}
-					{#if result.time}
-						<span class="result-time">{result.time}</span>
-					{/if}
-				</div>
-			{/each}
-		{:else}
-			<div class="result no-results">No results found</div>
-		{/if}
+<div>
+	<div class="mx-auto w-full">
+		<div class="border-2 rounded-l-lg rounded-tr-lg flex items-center bg-neutral-700">
+			<div class="w-10 p-2 border-r-2 bg-pink-800 rounded-l-lg">
+				<svg width="100%" height="100%" class="scale-125" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M10 1C5.02944 1 1 5.02944 1 10C1 14.9706 5.02944 19 10 19C12.125 19 14.078 18.2635 15.6177 17.0319L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.0319 15.6177C18.2635 14.078 19 12.125 19 10C19 5.02944 14.9706 1 10 1ZM3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10Z" fill="#fff" />
+				</svg>
+			</div>
+			<input class="w-full p-1 bg-transparent placeholder-neutral-200 border-none focus:ring-transparent ml-2 text-white" type="text" value={searchQuery} on:input={handleInput} placeholder="Поиск..." autocomplete="off" bind:this={inputElem} />
+		</div>
 	</div>
-{/if}
 
-
-<style>
-	/* Add CSS styles for the search component */
-	#search-results {
-		/* position: absolute; */
-		top: 100%;
-		left: 0;
-		right: 0;
-		border: 1px solid gray;
-		background-color: white;
-		max-height: 200px;
-		overflow-y: auto;
-		z-index: 100;
-	}
-
-	.result {
-		padding: 5px;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-	}
-
-	.result:hover {
-		background-color: #f0f0f0;
-	}
-
-	.result-type {
-		font-weight: bold;
-		margin-right: 5px;
-	}
-
-	.result-name {
-		flex: 1;
-	}
-
-	.result-location {
-		font-style: italic;
-		margin-right: 5px;
-	}
-
-	.result-time {
-		font-style: italic;
-		margin-left: 5px;
-	}
-
-	.no-results {
-		text-align: center;
-		color: gray;
-		font-style: italic;
-	}
-</style>
+	{#if searchQuery}
+		<div class="ml-[37px] border-x-2 border-b-2 overflow-y-auto z-10 max-h-40 rounded-b-lg" bind:this={resultsElem}>
+			{#if searchResults.length > 0}
+				{#each searchResults as result}
+					<div class="p-2 cursor-pointer flexa items-center hover:bg-neutral-300 hover:text-neutral-500 text-white " on:click={() => handleResultClick(result)}>
+						{#if result.type === 'room'}
+							<span class="font-bold mr-2">Комната</span>
+						{:else if result.type === 'table'}
+							<span class="font-bold mr-2">Стол</span>
+						{:else}
+							<span class="font-bold mr-2">Бронирование</span>
+						{/if}
+						<span class="flex-1">{result.name}</span>
+						{#if result.location}
+							<span class="italic mr-4">{result.location}</span>
+						{/if}
+						{#if result.time}
+							<span class="italic ml-2">{result.time}</span>
+						{/if}
+					</div>
+				{/each}
+			{:else}
+				<div class="p-2 cursor-pointer flexa items-center text-white hover:bg-neutral-300 hover:text-neutral-500 text-center italic">No results found</div>
+			{/if}
+		</div>
+	{/if}
+</div>

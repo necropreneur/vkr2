@@ -5,6 +5,8 @@
 	import { goto } from '$app/navigation';
 
 	import { DateInput } from 'date-picker-svelte';
+	import Search from '../../lib/Search.svelte';
+
 
 	let arrowDiv;
 	let scaleFactor;
@@ -147,6 +149,14 @@
 
 	onMount(() => {
 		loadtables2();
+		const handleUrlChange = () => {
+      const urlSearchParams = new URLSearchParams(window.location.search);
+      selectedTableKey = urlSearchParams.get('selectedTableKey');
+    };
+
+    window.addEventListener('popstate', handleUrlChange);
+    handleUrlChange();
+
 		const svgContainer = document.getElementById('rooms_svg_container');
 		const svg = document.querySelector('svg');
 		const viewBox = svg.viewBox.baseVal;
@@ -294,16 +304,7 @@
 	<div class="w-[28%] bg-gpt-secondary-bg text-white">
 		<div class="w-full p-4 relative h-full flex flex-col justify-between">
 			<div>
-				<div class="mx-auto w-full">
-					<div class="border-2 rounded-lg flex items-center">
-						<div class="w-10 p-2 border-r-2 bg-pink-800 rounded-l-lg">
-							<svg width="100%" height="100%" class="scale-125" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10 1C5.02944 1 1 5.02944 1 10C1 14.9706 5.02944 19 10 19C12.125 19 14.078 18.2635 15.6177 17.0319L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.0319 15.6177C18.2635 14.078 19 12.125 19 10C19 5.02944 14.9706 1 10 1ZM3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10Z" fill="#fff" />
-							</svg>
-						</div>
-						<div class="ml-2">Поиск...</div>
-					</div>
-				</div>
+				<Search />
 				<div class="mt-4 text-3xl">Бронирование</div>
 				{#if selectedTableKey}
 					<div class="mt-4">имя бронирующего</div>

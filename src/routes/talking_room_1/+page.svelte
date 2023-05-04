@@ -5,6 +5,8 @@
 	import { goto } from '$app/navigation';
 	import { DateInput } from 'date-picker-svelte';
 
+	import Search from '../../lib/Search.svelte';
+
 	let arrowDiv;
 	let scaleFactor;
 
@@ -83,7 +85,7 @@
 		}
 	}
 	let selectedTimeString;
-	$: console.log(selectedDateString, selectedTimeString);
+	// $: console.log(selectedDateString, selectedTimeString);
 
 	$: {
 		if (selectedDateString && selectedTimeString) {
@@ -99,11 +101,30 @@
 				bookings1[selectedDateString][selectedTimeString].booked = !bookings1[selectedDateString][selectedTimeString].booked;
 			}
 		}
-		console.log(bookings1[selectedDateString][selectedTimeString]);
+		// console.log(bookings1[selectedDateString][selectedTimeString]);
 	}
+
+	function decodeTimeString(encodedString) {
+		return decodeURIComponent(encodedString);
+	}
+
+	// function stringToDate(dateString) {
+	// 	const [day, month, year] = dateString.split('-');
+	// 	return new Date(year, month - 1, day);
+	// }
 
 	onMount(() => {
 		loadBookings1();
+
+		const handleUrlChange = () => {
+			const urlSearchParams = new URLSearchParams(window.location.search);
+			selectedDateString = stringToDate(urlSearchParams.get('selectedDateString'));
+			selectedTimeString = decodeTimeString(urlSearchParams.get('selectedTimeString'));
+			console.log(selectedDateString);
+		};
+		window.addEventListener('popstate', handleUrlChange);
+		handleUrlChange();
+
 		const svgContainer = document.getElementById('rooms_svg_container');
 		const svg = document.querySelector('svg');
 		const viewBox = svg.viewBox.baseVal;
@@ -119,19 +140,13 @@
 			const target = event.target;
 
 			if (target.tagName === 'path' && target.hasAttribute('id')) {
-				console.log(target.id);
+				// console.log(target.id);
 			}
 		});
 		const svgContainerPaths = document.getElementById('rooms_svg_container').querySelectorAll('path');
 		let arrowDiv = document.getElementById('ArrowSvgDiv');
 		let arrowSvg = document.getElementById('ArrowSvg');
 
-		function adjustPosition(arrow_bbox, room_bbox, withTransition = false) {
-			arrowDiv.style = `position: absolute; pointer-events: none;
-      top: ${room_bbox.y + room_bbox.height / 2 - arrow_bbox.height * 0.9}px;
-      left: ${room_bbox.x + room_bbox.width / 2 - arrow_bbox.width / 2}px;
-      ${withTransition ? 'transition: all 0.3s ease;' : ''}`;
-		}
 
 		svgContainerPaths.forEach((path) => {
 			path.addEventListener('click', () => {
@@ -234,16 +249,7 @@
 	<div class="w-[28%] bg-gpt-secondary-bg text-white">
 		<div class="w-full p-4 relative h-full flex flex-col justify-between">
 			<div>
-				<div class="mx-auto w-full">
-					<div class="border-2 rounded-lg flex items-center">
-						<div class="w-10 p-2 border-r-2 bg-pink-800 rounded-l-lg">
-							<svg width="100%" height="100%" class="scale-125" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10 1C5.02944 1 1 5.02944 1 10C1 14.9706 5.02944 19 10 19C12.125 19 14.078 18.2635 15.6177 17.0319L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.0319 15.6177C18.2635 14.078 19 12.125 19 10C19 5.02944 14.9706 1 10 1ZM3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10Z" fill="#fff" />
-							</svg>
-						</div>
-						<div class="ml-2">Поиск...</div>
-					</div>
-				</div>
+				<Search />
 				<div class="mt-4 text-3xl">Бронирование</div>
 				{#if selectedTimeString}
 					<div class="mt-4 flex justify-between">
@@ -256,7 +262,7 @@
 					</div>
 					<div class="mt-4 flex flex-col justify-between">
 						<div>Введите название</div>
-						<input class="bg-gpt-bg" bind:value={bookings1[selectedDateString][selectedTimeString].name} />
+						<input class="bg-gpt-bg" bind:value={bookings1[selectedDateString][selectedTimeString].description} />
 					</div>
 				{:else}
 					<div>Пожалуйтса, выберите дату и время (нажмите "Свободно" или "Забронировано")</div>
