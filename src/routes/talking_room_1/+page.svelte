@@ -1,6 +1,6 @@
 <!-- src/routes/SvgComponent.svelte -->
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, afterUpdate } from 'svelte';
 	import ArrowSvg from '$lib/icons/arrow.svelte';
 	import { goto } from '$app/navigation';
 	import { DateInput } from 'date-picker-svelte';
@@ -46,6 +46,17 @@
 		}
 	};
 
+	function saveBookings1() {
+		localStorage.setItem('bookings1', JSON.stringify(bookings1));
+	}
+
+	function loadBookings1() {
+		const storedBookings1 = localStorage.getItem('bookings1');
+		if (storedBookings1) {
+			bookings1 = JSON.parse(storedBookings1);
+		}
+	}
+
 	function checkAndCreateBooking(dateString) {
 		if (!bookings1[dateString]) {
 			bookings1[dateString] = {
@@ -88,10 +99,11 @@
 				bookings1[selectedDateString][selectedTimeString].booked = !bookings1[selectedDateString][selectedTimeString].booked;
 			}
 		}
-		console.log(bookings1[selectedDateString][selectedTimeString])
+		console.log(bookings1[selectedDateString][selectedTimeString]);
 	}
 
 	onMount(() => {
+		loadBookings1();
 		const svgContainer = document.getElementById('rooms_svg_container');
 		const svg = document.querySelector('svg');
 		const viewBox = svg.viewBox.baseVal;
@@ -173,6 +185,11 @@
 		});
 	});
 
+	afterUpdate(() => {
+		saveBookings1();
+		// ... (other afterUpdate code)
+	});
+
 	function goBackToMenu() {
 		goto('/');
 	}
@@ -219,7 +236,12 @@
 			<div>
 				<div class="mx-auto w-full">
 					<div class="border-2 rounded-lg flex items-center">
-						<!-- ... search svg and text ... -->
+						<div class="w-10 p-2 border-r-2 bg-pink-800 rounded-l-lg">
+							<svg width="100%" height="100%" class="scale-125" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M10 1C5.02944 1 1 5.02944 1 10C1 14.9706 5.02944 19 10 19C12.125 19 14.078 18.2635 15.6177 17.0319L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.0319 15.6177C18.2635 14.078 19 12.125 19 10C19 5.02944 14.9706 1 10 1ZM3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10Z" fill="#fff" />
+							</svg>
+						</div>
+						<div class="ml-2">Поиск...</div>
 					</div>
 				</div>
 				<div class="mt-4 text-3xl">Бронирование</div>
@@ -258,7 +280,7 @@
 	<!-- <div>{customGlobalRemovalMode}</div> -->
 	<div class="absolute bottom-0 text-white border-2 p-2 ml-4 mb-4 rounded-lg flex items-center bg-gpt-secondary-bg hover:bg-gpt-bg cursor-pointer select-none" on:click={goBackToMenu}>
 		<!-- <BackSvg /> -->
-		<div class="ml-2 w-4 scale-[200%] text-white fill-red-800/25 stroke-white stroke-[6px]">
+		<div class="ml-2 w-4 scale-[200%] text-white fill-none stroke-white stroke-[6px]">
 			<svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 100 100"><path d="M95 44.892v10.216a8.987 8.987 0 0 1-8.961 8.96h-22.8V73.3a8.958 8.958 0 0 1-13.441 7.751L28.466 68.728l-19-10.977a8.956 8.956 0 0 1 0-15.5l19-10.977 21.327-12.323A8.958 8.958 0 0 1 63.234 26.7v9.23h22.805A8.987 8.987 0 0 1 95 44.892Z" /></svg>
 		</div>
 		<div class="w-fit ml-4">Назад в меню</div>

@@ -1,4 +1,5 @@
 <script>
+	import Search from '../lib/Search.svelte';
 	import Map from './Map.svelte';
 	import TalkingRoom from './talking_room_1/+page.svelte';
 	import Workspace from './workspace_1/+page.svelte';
@@ -9,8 +10,9 @@
 	<meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<section>
-	<Map />
+<section >
+	<Search />
+	<!-- <Map /> -->
 	<!-- <TalkingRoom /> -->
 	<!-- <Workspace /> -->
 	

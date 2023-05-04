@@ -156,26 +156,26 @@
 			});
 		});
 
-		svgContainer.addEventListener('click', (event) => {
-			const target = event.target;
+		// document.addEventListener('click', (event) => {
+		// 	const target = event.target;
 
-			if (target.tagName !== 'path' || !target.hasAttribute('id')) {
-				const arrowDiv = document.getElementById('ArrowSvgDiv');
-				arrowDiv.style = 'position: absolute; display: none';
-			}
-		});
+		// 	if (target.id !== selectedTimeString && target.parent !== 'booking_button') {
+		// 		selectedTimeString = ''
+		// 	}
+		// });
 
 		document.addEventListener('keyup', (event) => {
 			if (event.key === 'Escape') {
-				const arrowDiv = document.getElementById('ArrowSvgDiv');
-				arrowDiv.style = 'position: absolute; display: none';
+				selectedTimeString = ''
 			}
 		});
+		
 	});
 
 	function goBackToMenu() {
 		goto('/');
 	}
+	
 </script>
 
 <div class="flex justify-between !bg-gpt-bg h-screen">
@@ -193,9 +193,9 @@
 	<div id="map" class="h-screen flex w-[28%]  p-4">
 		<div class="relative m-auto w-full !bg-gpt-secondary-bg rounded-3xl px-4 py-4">
 			<div class="text-3xl text-white ">Расписание</div>
-			<div class="mt-4 flex justify-between text-white">
+			<div class="mt-4 flex justify-between items-center text-white">
 				<div class="text-3xl">Выберите дату:</div>
-				<div><DateInput format="dd-MM-yyyy" bind:value={selectedDate} placeholder="год месяц день" /></div>
+				<DateInput format="dd-MM-yyyy" bind:value={selectedDate} placeholder="год месяц день" class="h-fit mt-[2px]" />
 			</div>
 			<div class="mt-4 flex flex-col justify-between">
 				{#each Object.keys(bookings2[selectedDateString]) as timeSlot}
@@ -203,9 +203,9 @@
 						<div class="text-3xl border-2 rounded-xl px-2 py-1">{timeSlot}</div>
 						<div class="w-1/2">
 							{#if bookings2[selectedDateString][timeSlot].booked}
-								<div class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-red" on:click={() => (selectedTimeString = timeSlot)}>Забронировано</div>
+								<div id={selectedTimeString} class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-red" on:click={() => (selectedTimeString = timeSlot)}>Забронировано</div>
 							{:else}
-								<div class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-green" on:click={() => (selectedTimeString = timeSlot)}>Свободно</div>
+								<div id={selectedTimeString} class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-green" on:click={() => (selectedTimeString = timeSlot)}>Свободно</div>
 							{/if}
 						</div>
 					</div>
@@ -219,28 +219,36 @@
 			<div>
 				<div class="mx-auto w-full">
 					<div class="border-2 rounded-lg flex items-center">
-						<!-- ... search svg and text ... -->
+						<div class="w-10 p-2 border-r-2 bg-pink-800 rounded-l-lg">
+							<svg width="100%" height="100%" class="scale-125" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M10 1C5.02944 1 1 5.02944 1 10C1 14.9706 5.02944 19 10 19C12.125 19 14.078 18.2635 15.6177 17.0319L20.2929 21.7071C20.6834 22.0976 21.3166 22.0976 21.7071 21.7071C22.0976 21.3166 22.0976 20.6834 21.7071 20.2929L17.0319 15.6177C18.2635 14.078 19 12.125 19 10C19 5.02944 14.9706 1 10 1ZM3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10Z" fill="#fff" />
+							</svg>
+						</div>
+						<div class="ml-2">Поиск...</div>
 					</div>
 				</div>
 				<div class="mt-4 text-3xl">Бронирование</div>
 				{#if selectedTimeString}
-					<div class="mt-4 flex justify-between">
-						<div>Дата:</div>
-						<div>{selectedDateString}</div>
+					<div class="mt-4 flex justify-between items-center">
+						<div class="text-3xl h-fit">Дата:</div>
+						<!-- <div>{selectedDateString}</div> -->
+						<div class="text-3xl border-2 rounded-xl px-2 py-1">{selectedDateString}</div>
 					</div>
-					<div class="mt-4 flex justify-between">
-						<div>Время:</div>
-						<div>{selectedTimeString}</div>
+					<div class="mt-4 flex justify-between items-center">
+						<div class="text-3xl h-fit">Время:</div>
+						<!-- <div>{selectedTimeString}</div> -->
+						<div class="text-3xl border-2 rounded-xl px-2 py-1">{selectedTimeString}</div>
+
 					</div>
-					<div class="mt-4 flex flex-col justify-between">
-						<div>Введите название</div>
-						<input class="bg-gpt-bg" bind:value={bookings2[selectedDateString][selectedTimeString].name} />
+					<div class="mt-4 flex flex-col justify-between ">
+						<div class="text-3xl h-fit">Описание:</div>
+						<textarea class="bg-gpt-bg text-3xl px-4 py-2 mt-2" placeholder="Введите описание..." bind:value={bookings2[selectedDateString][selectedTimeString].name} />
 					</div>
 				{:else}
 					<div>Пожалуйтса, выберите дату и время (нажмите "Свободно" или "Забронировано")</div>
 				{/if}
 			</div>
-			<div class="mx-auto w-full">
+			<div id="booking_button" class="mx-auto w-full">
 				{#if selectedTimeString}
 					{#if !bookings2[selectedDateString][selectedTimeString].booked}
 						<div class="px-4 py-2 rounded-lg select-none text-center bg-green-600 hover:bg-green-700 cursor-pointer" on:click={bookTimeSlot}>Забронировать</div>
@@ -258,7 +266,7 @@
 	<!-- <div>{customGlobalRemovalMode}</div> -->
 	<div class="absolute bottom-0 text-white border-2 p-2 ml-4 mb-4 rounded-lg flex items-center bg-gpt-secondary-bg hover:bg-gpt-bg cursor-pointer select-none" on:click={goBackToMenu}>
 		<!-- <BackSvg /> -->
-		<div class="ml-2 w-4 scale-[200%] text-white fill-red-800/25 stroke-white stroke-[6px]">
+		<div class="ml-2 w-4 scale-[200%] text-white fill-none stroke-white stroke-[6px]">
 			<svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 100 100"><path d="M95 44.892v10.216a8.987 8.987 0 0 1-8.961 8.96h-22.8V73.3a8.958 8.958 0 0 1-13.441 7.751L28.466 68.728l-19-10.977a8.956 8.956 0 0 1 0-15.5l19-10.977 21.327-12.323A8.958 8.958 0 0 1 63.234 26.7v9.23h22.805A8.987 8.987 0 0 1 95 44.892Z" /></svg>
 		</div>
 		<div class="w-fit ml-4">Назад в меню</div>
