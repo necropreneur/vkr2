@@ -7,9 +7,6 @@
 	import { DateInput } from 'date-picker-svelte';
 	import Search from '../../lib/Search.svelte';
 
-
-	
-
 	let arrowDiv;
 	let scaleFactor;
 
@@ -148,32 +145,29 @@
 	}
 
 	function updateColors() {
-		// Check if the room_svg_container is already in the DOM
 		const room_svg_container = document.getElementById('rooms_svg_container');
 		if (room_svg_container) {
-			// Iterate over all keys in tables3
 			for (const key in tables3) {
-				// Get the path with the corresponding ID from room_svg_containers
 				const path = room_svg_container.querySelector(`#${key}`);
 				if (path) {
-					// If booked is false, set the fill color to red, otherwise use the original color
 					let fillColor;
 					let strokeColor;
 					if (tables3[key].booked) {
 						if (!tables3[key].fulltime) {
-							// blue
-							strokeColor = 'rgb(0, 133, 255)';
-							fillColor = 'rgb(0, 133, 255)';
+							strokeColor = fillColor = 'rgb(0, 133, 255)';
 						} else {
-							// red
-							strokeColor = 'rgb(177, 49, 49)';
-							fillColor = 'rgb(255, 0, 0)';
+							strokeColor = fillColor = 'rgb(177, 49, 49)';
 						}
 					} else {
 						strokeColor = fillColor = 'white';
 					}
 					path.style.fill = fillColor;
 					path.style.stroke = strokeColor;
+
+					// Remove the blinking class if the table is not selected
+					if (key !== selectedTableKey) {
+						path.classList.remove('blinking');
+					}
 				}
 			}
 		}
@@ -181,24 +175,15 @@
 
 	onMount(() => {
 		loadtables3();
-		
+
 		const handleUrlChange = () => {
-      const urlSearchParams = new URLSearchParams(window.location.search);
-      selectedTableKey = urlSearchParams.get('selectedTableKey');
-    };
-    window.addEventListener('popstate', handleUrlChange);
-    handleUrlChange();
+			const urlSearchParams = new URLSearchParams(window.location.search);
+			selectedTableKey = urlSearchParams.get('selectedTableKey');
+		};
+		window.addEventListener('popstate', handleUrlChange);
+		handleUrlChange();
 
 		const svgContainer = document.getElementById('rooms_svg_container');
-		const svg = document.querySelector('svg');
-		const viewBox = svg.viewBox.baseVal;
-		const width = viewBox.width;
-		const height = viewBox.height;
-		const aspectRatio = width / height;
-		const svgContainerWidth = svgContainer.clientWidth;
-		const svgContainerHeight = svgContainer.clientHeight;
-		const svgContainerAspectRatio = svgContainerWidth / svgContainerHeight;
-		const scaleFactor = svgContainerAspectRatio > aspectRatio ? svgContainerHeight / height : svgContainerWidth / width;
 
 		svgContainer.addEventListener('click', (event) => {
 			const target = event.target;
@@ -207,51 +192,8 @@
 				selectedTableKey = target.id;
 				console.log(selectedTableKey);
 			}
-		});
-		const svgContainerPaths = document.getElementById('rooms_svg_container').querySelectorAll('path');
-		let arrowDiv = document.getElementById('ArrowSvgDiv');
-		let arrowSvg = document.getElementById('ArrowSvg');
-
-		function adjustPosition(arrow_bbox, room_bbox, withTransition = false) {
-			arrowDiv.style = `position: absolute; pointer-events: none;
-      top: ${room_bbox.y + room_bbox.height / 2 - arrow_bbox.height * 0.65}px;
-      left: ${room_bbox.x + room_bbox.width / 2 - arrow_bbox.width / 2}px;
-      ${withTransition ? 'transition: all 0.3s ease;' : ''}`;
-		}
-
-		svgContainerPaths.forEach((path) => {
-			path.addEventListener('click', () => {
-				let bbox = path.getBBox();
-				let arrow_bbox = arrowSvg.getBBox();
-
-				bbox.x *= scaleFactor;
-				bbox.y *= scaleFactor;
-				bbox.width *= scaleFactor;
-				bbox.height *= scaleFactor;
-				arrow_bbox.width *= scaleFactor;
-				arrow_bbox.height *= scaleFactor;
-
-				// console.log(bbox);
-
-				if (arrowDiv.style.display === 'none') {
-					adjustPosition(arrow_bbox, bbox, false);
-					bbox = path.getBBox();
-					arrow_bbox = arrowSvg.getBBox();
-
-					bbox.x *= scaleFactor;
-					bbox.y *= scaleFactor;
-					bbox.width *= scaleFactor;
-					bbox.height *= scaleFactor;
-					arrow_bbox.width *= scaleFactor;
-					arrow_bbox.height *= scaleFactor;
-
-					adjustPosition(arrow_bbox, bbox, false);
-
-					return;
-				}
-				// Get the path's bounding box to position the image at the center
-				adjustPosition(arrow_bbox, bbox, true);
-			});
+			updateSelectedTableColor();
+			updateColors();
 		});
 
 		svgContainer.addEventListener('click', (event) => {
@@ -262,6 +204,8 @@
 				arrowDiv.style = 'position: absolute; display: none';
 				selectedTableKey = undefined;
 			}
+			updateSelectedTableColor();
+			updateColors();
 		});
 
 		document.addEventListener('keyup', (event) => {
@@ -270,13 +214,26 @@
 				arrowDiv.style = 'position: absolute; display: none';
 				selectedTableKey = undefined;
 			}
+			updateColors();
+			updateSelectedTableColor();
 		});
-		updateColors();
 	});
+
+	function updateSelectedTableColor() {
+		const room_svg_container = document.getElementById('rooms_svg_container');
+		if (room_svg_container && selectedTableKey) {
+			const path = room_svg_container.querySelector(`#${selectedTableKey}`);
+			if (path) {
+				// Add the blinking class to the selected path
+				path.classList.add('blinking');
+			}
+		}
+	}
 
 	afterUpdate(() => {
 		savetables3();
 		updateColors();
+		updateSelectedTableColor();
 	});
 
 	function goBackToMenu() {
@@ -403,5 +360,19 @@
 	:root {
 		--date-picker-background: #313131;
 		--date-picker-foreground: #fff;
+	}
+
+	:global(.blinking) {
+		animation: blinking 1s infinite;
+	}
+
+	@keyframes blinking {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
 	}
 </style>
