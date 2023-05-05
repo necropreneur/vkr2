@@ -89,7 +89,6 @@
 
 			if (target.tagName === 'path' && target.hasAttribute('id')) {
 				selectedRoomKey = target.id;
-				console.log(target.id);
 			}
 		});
 		const svgContainerPaths = document.getElementById('rooms_svg_container').querySelectorAll('path');

@@ -3,32 +3,35 @@
 	import { onMount, afterUpdate } from 'svelte';
 	import ArrowSvg from '$lib/icons/arrow.svelte';
 	import { goto } from '$app/navigation';
-
 	import { DateInput } from 'date-picker-svelte';
 	import Search from '../../lib/Search.svelte';
 
+	let tables2 = generateInitialTables();
+	let disabled;
+	let selectedTableKey = getSelectedTableKeyFromUrl();
 
-	let arrowDiv;
-	let scaleFactor;
+	onMount(init);
+	afterUpdate(update);
 
-	// let printers = {
-	// 	printer_1: {
-	// 		location: 'workspace_1',
-	// 		currentlyPrinting: false,
-	// 	}
-	// }
+	function init() {
+		loadtables2();
+		attachEventListeners();
+		handleUrlChange();
+	}
 
-	let tables2 = {
-		table_1: {
-			name: 'Павел Буров',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_2: {
+	function update() {
+		savetables2();
+		updateColors();
+		updateSelectedTableColor();
+	}
+
+	function goBackToMenu() {
+		goto('/');
+	}
+
+	// Helper functions
+	function generateInitialTables() {
+		const initialTable = {
 			name: '',
 			ocupation: '',
 			devices: '',
@@ -36,53 +39,12 @@
 			start_date: new Date(),
 			end_date: new Date(),
 			booked: false
-		},
-		table_3: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_4: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_5: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_6: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_7: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		}
-	};
+		};
+		return Array.from({ length: 7 }, (_, i) => ({ ...initialTable })).reduce((acc, table, i) => {
+			acc[`table_${i + 1}`] = table;
+			return acc;
+		}, {});
+	}
 
 	function savetables2() {
 		localStorage.setItem('tables2', JSON.stringify(tables2));
@@ -92,163 +54,115 @@
 		const storedtables2 = localStorage.getItem('tables2');
 		if (storedtables2) {
 			tables2 = JSON.parse(storedtables2);
-
-			// Convert date strings back to Date objects
-			for (const key in tables2) {
-				tables2[key].start_date = new Date(tables2[key].start_date);
-				tables2[key].end_date = new Date(tables2[key].end_date);
-			}
+			convertDateStringsToDateObjects(tables2);
 		}
 	}
 
-	let selectedTableKey = undefined;
-	let disabled = false;
+	function convertDateStringsToDateObjects(obj) {
+		for (const key in obj) {
+			obj[key].start_date = new Date(obj[key].start_date);
+			obj[key].end_date = new Date(obj[key].end_date);
+		}
+	}
 
-	$: if (selectedTableKey !== undefined) {
+	function getSelectedTableKeyFromUrl() {
+		if (typeof window === 'undefined') {
+			return undefined;
+		}
+		const urlSearchParams = new URLSearchParams(window.location.search);
+		return urlSearchParams.get('selectedTableKey');
+	}
+
+	function handleUrlChange() {
+		selectedTableKey = getSelectedTableKeyFromUrl();
+		updateSelectedTableColor();
+		updateColors();
+	}
+
+	$: if (selectedTableKey !== undefined && tables2[selectedTableKey]) {
 		disabled = tables2[selectedTableKey].fulltime;
 	}
 
 	function bookTable() {
 		if (selectedTableKey in tables2) {
-			console.log('yey');
 			tables2[selectedTableKey].booked = !tables2[selectedTableKey].booked;
 		}
 	}
 
 	function updateColors() {
-		// Check if the room_svg_container is already in the DOM
 		const room_svg_container = document.getElementById('rooms_svg_container');
 		if (room_svg_container) {
-			// Iterate over all keys in tables2
 			for (const key in tables2) {
-				// Get the path with the corresponding ID from room_svg_containers
-				const path = room_svg_container.querySelector(`#${key}`);
-				if (path) {
-					// If booked is false, set the fill color to red, otherwise use the original color
-					let fillColor;
-					let strokeColor;
-					if (tables2[key].booked) {
-						if (!tables2[key].fulltime) {
-							// blue
-							strokeColor = 'rgb(0, 133, 255)';
-							fillColor = 'rgb(0, 133, 255)';
-						} else {
-							// red
-							strokeColor = 'rgb(177, 49, 49)';
-							fillColor = 'rgb(255, 0, 0)';
-						}
-					} else {
-						strokeColor = fillColor = 'white';
-					}
-					path.style.fill = fillColor;
-					path.style.stroke = strokeColor;
-				}
+				updateColorForKey(key);
 			}
 		}
 	}
 
-	onMount(() => {
-		loadtables2();
-		const handleUrlChange = () => {
-      const urlSearchParams = new URLSearchParams(window.location.search);
-      selectedTableKey = urlSearchParams.get('selectedTableKey');
-    };
-
-    window.addEventListener('popstate', handleUrlChange);
-    handleUrlChange();
-
-		const svgContainer = document.getElementById('rooms_svg_container');
-		const svg = document.querySelector('svg');
-		const viewBox = svg.viewBox.baseVal;
-		const width = viewBox.width;
-		const height = viewBox.height;
-		const aspectRatio = width / height;
-		const svgContainerWidth = svgContainer.clientWidth;
-		const svgContainerHeight = svgContainer.clientHeight;
-		const svgContainerAspectRatio = svgContainerWidth / svgContainerHeight;
-		const scaleFactor = svgContainerAspectRatio > aspectRatio ? svgContainerHeight / height : svgContainerWidth / width;
-
-		svgContainer.addEventListener('click', (event) => {
-			const target = event.target;
-
-			if (target.tagName === 'path' && target.hasAttribute('id')) {
-				selectedTableKey = target.id;
-				console.log(selectedTableKey);
-			}
-		});
-		const svgContainerPaths = document.getElementById('rooms_svg_container').querySelectorAll('path');
-		let arrowDiv = document.getElementById('ArrowSvgDiv');
-		let arrowSvg = document.getElementById('ArrowSvg');
-
-		function adjustPosition(arrow_bbox, room_bbox, withTransition = false) {
-			arrowDiv.style = `position: absolute; pointer-events: none;
-      top: ${room_bbox.y + room_bbox.height / 2 - arrow_bbox.height * 0.65}px;
-      left: ${room_bbox.x + room_bbox.width / 2 - arrow_bbox.width / 2}px;
-      ${withTransition ? 'transition: all 0.3s ease;' : ''}`;
-		}
-
-		svgContainerPaths.forEach((path) => {
-			path.addEventListener('click', () => {
-				let bbox = path.getBBox();
-				let arrow_bbox = arrowSvg.getBBox();
-
-				bbox.x *= scaleFactor;
-				bbox.y *= scaleFactor;
-				bbox.width *= scaleFactor;
-				bbox.height *= scaleFactor;
-				arrow_bbox.width *= scaleFactor;
-				arrow_bbox.height *= scaleFactor;
-
-				// console.log(bbox);
-
-				if (arrowDiv.style.display === 'none') {
-					adjustPosition(arrow_bbox, bbox, false);
-					bbox = path.getBBox();
-					arrow_bbox = arrowSvg.getBBox();
-
-					bbox.x *= scaleFactor;
-					bbox.y *= scaleFactor;
-					bbox.width *= scaleFactor;
-					bbox.height *= scaleFactor;
-					arrow_bbox.width *= scaleFactor;
-					arrow_bbox.height *= scaleFactor;
-
-					adjustPosition(arrow_bbox, bbox, false);
-
-					return;
+	function updateColorForKey(key) {
+		const room_svg_container = document.getElementById('rooms_svg_container');
+		const path = room_svg_container.querySelector(`#${key}`);
+		if (path) {
+			let fillColor;
+			let strokeColor;
+			if (tables2[key].booked) {
+				if (!tables2[key].fulltime) {
+					strokeColor = fillColor = 'rgb(0, 133, 255)';
+				} else {
+					strokeColor = fillColor = 'rgb(177, 49, 49)';
 				}
-				// Get the path's bounding box to position the image at the center
-				adjustPosition(arrow_bbox, bbox, true);
-			});
-		});
-
-		svgContainer.addEventListener('click', (event) => {
-			const target = event.target;
-
-			if (target.tagName !== 'path' || !target.hasAttribute('id')) {
-				const arrowDiv = document.getElementById('ArrowSvgDiv');
-				arrowDiv.style = 'position: absolute; display: none';
-				selectedTableKey = undefined;
+			} else {
+				strokeColor = fillColor = 'white';
 			}
-		});
+			path.style.fill = fillColor;
+			path.style.stroke = strokeColor;
 
-		document.addEventListener('keyup', (event) => {
-			if (event.key === 'Escape') {
-				const arrowDiv = document.getElementById('ArrowSvgDiv');
-				arrowDiv.style = 'position: absolute; display: none';
-				selectedTableKey = undefined;
+			// Remove the blinking class if the table is not selected
+			if (key !== selectedTableKey) {
+				path.classList.remove('blinking');
 			}
-		});
-		updateColors();
-	});
+		}
+	}
 
-	afterUpdate(() => {
-		savetables2();
-		updateColors();
-	});
+	function attachEventListeners() {
+		window.addEventListener('popstate', handleUrlChange);
+		const svgContainer = document.getElementById('rooms_svg_container');
+		svgContainer.addEventListener('click', handleSvgContainerClick);
+		document.addEventListener('keyup', handleKeyUp);
+	}
 
-	function goBackToMenu() {
-		goto('/');
+	function handleSvgContainerClick(event) {
+		const target = event.target;
+
+		if (target.tagName === 'path' && target.hasAttribute('id')) {
+			selectedTableKey = target.id;
+		} else {
+			const arrowDiv = document.getElementById('ArrowSvgDiv');
+			arrowDiv.style = 'position: absolute; display: none';
+			selectedTableKey = undefined;
+		}
+		updateSelectedTableColor();
+		updateColors();
+	}
+
+	function handleKeyUp(event) {
+		if (event.key === 'Escape') {
+			const arrowDiv = document.getElementById('ArrowSvgDiv');
+			arrowDiv.style = 'position: absolute; display: none';
+			selectedTableKey = undefined;
+		}
+		updateColors();
+		updateSelectedTableColor();
+	}
+
+	function updateSelectedTableColor() {
+		const room_svg_container = document.getElementById('rooms_svg_container');
+		if (room_svg_container && selectedTableKey) {
+			const path = room_svg_container.querySelector(`#${selectedTableKey}`);
+			if (path) {
+				// Add the blinking class to the selected path
+				path.classList.add('blinking');
+			}
+		}
 	}
 </script>
 
@@ -359,5 +273,19 @@
 	:root {
 		--date-picker-background: #313131;
 		--date-picker-foreground: #fff;
+	}
+
+	:global(.blinking) {
+		animation: blinking 1s infinite;
+	}
+
+	@keyframes blinking {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
 	}
 </style>
