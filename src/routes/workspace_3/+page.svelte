@@ -3,31 +3,35 @@
 	import { onMount, afterUpdate } from 'svelte';
 	import ArrowSvg from '$lib/icons/arrow.svelte';
 	import { goto } from '$app/navigation';
-
 	import { DateInput } from 'date-picker-svelte';
 	import Search from '../../lib/Search.svelte';
 
-	let arrowDiv;
-	let scaleFactor;
+	let tables3 = generateInitialTables();
+	let disabled;
+	let selectedTableKey = getSelectedTableKeyFromUrl();
 
-	// let printers = {
-	// 	printer_1: {
-	// 		location: 'workspace_1',
-	// 		currentlyPrinting: false,
-	// 	}
-	// }
+	onMount(init);
+	afterUpdate(update);
 
-	let tables3 = {
-		table_1: {
-			name: 'Павел Буров',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_2: {
+	function init() {
+		loadtables3();
+		attachEventListeners();
+		handleUrlChange();
+	}
+
+	function update() {
+		savetables3();
+		updateColors();
+		updateSelectedTableColor();
+	}
+
+	function goBackToMenu() {
+		goto('/');
+	}
+
+	// Helper functions
+	function generateInitialTables() {
+		const initialTable = {
 			name: '',
 			ocupation: '',
 			devices: '',
@@ -35,80 +39,12 @@
 			start_date: new Date(),
 			end_date: new Date(),
 			booked: false
-		},
-		table_3: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_4: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_5: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_6: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_7: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_8: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_9: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		},
-		table_10: {
-			name: '',
-			ocupation: '',
-			devices: '',
-			fulltime: false,
-			start_date: new Date(),
-			end_date: new Date(),
-			booked: false
-		}
-	};
+		};
+		return Array.from({ length: 10 }, (_, i) => ({ ...initialTable })).reduce((acc, table, i) => {
+			acc[`table_${i + 1}`] = table;
+			return acc;
+		}, {});
+	}
 
 	function savetables3() {
 		localStorage.setItem('tables3', JSON.stringify(tables3));
@@ -118,28 +54,37 @@
 		const storedtables3 = localStorage.getItem('tables3');
 		if (storedtables3) {
 			tables3 = JSON.parse(storedtables3);
-
-			// Convert date strings back to Date objects
-			for (const key in tables3) {
-				tables3[key].start_date = new Date(tables3[key].start_date);
-				tables3[key].end_date = new Date(tables3[key].end_date);
-			}
+			convertDateStringsToDateObjects(tables3);
 		}
 	}
 
-	let selectedTableKey = undefined;
-	// Subscribe to the page store to get the selectedTableKey from the URL
-	// $: $page.query.has('selectedTableKey') && (selectedTableKey = $page.query.get('selectedTableKey'));
+	function convertDateStringsToDateObjects(obj) {
+		for (const key in obj) {
+			obj[key].start_date = new Date(obj[key].start_date);
+			obj[key].end_date = new Date(obj[key].end_date);
+		}
+	}
 
-	let disabled = false;
+	function getSelectedTableKeyFromUrl() {
+		if (typeof window === 'undefined') {
+			return undefined;
+		}
+		const urlSearchParams = new URLSearchParams(window.location.search);
+		return urlSearchParams.get('selectedTableKey');
+	}
 
-	$: if (selectedTableKey !== undefined) {
+	function handleUrlChange() {
+		selectedTableKey = getSelectedTableKeyFromUrl();
+		updateSelectedTableColor();
+		updateColors();
+	}
+
+	$: if (selectedTableKey !== undefined && tables3[selectedTableKey]) {
 		disabled = tables3[selectedTableKey].fulltime;
 	}
 
 	function bookTable() {
 		if (selectedTableKey in tables3) {
-			console.log('yey');
 			tables3[selectedTableKey].booked = !tables3[selectedTableKey].booked;
 		}
 	}
@@ -148,76 +93,66 @@
 		const room_svg_container = document.getElementById('rooms_svg_container');
 		if (room_svg_container) {
 			for (const key in tables3) {
-				const path = room_svg_container.querySelector(`#${key}`);
-				if (path) {
-					let fillColor;
-					let strokeColor;
-					if (tables3[key].booked) {
-						if (!tables3[key].fulltime) {
-							strokeColor = fillColor = 'rgb(0, 133, 255)';
-						} else {
-							strokeColor = fillColor = 'rgb(177, 49, 49)';
-						}
-					} else {
-						strokeColor = fillColor = 'white';
-					}
-					path.style.fill = fillColor;
-					path.style.stroke = strokeColor;
-
-					// Remove the blinking class if the table is not selected
-					if (key !== selectedTableKey) {
-						path.classList.remove('blinking');
-					}
-				}
+				updateColorForKey(key);
 			}
 		}
 	}
 
-	onMount(() => {
-		loadtables3();
+	function updateColorForKey(key) {
+		const room_svg_container = document.getElementById('rooms_svg_container');
+		const path = room_svg_container.querySelector(`#${key}`);
+		if (path) {
+			let fillColor;
+			let strokeColor;
+			if (tables3[key].booked) {
+				if (!tables3[key].fulltime) {
+					strokeColor = fillColor = 'rgb(0, 133, 255)';
+				} else {
+					strokeColor = fillColor = 'rgb(177, 49, 49)';
+				}
+			} else {
+				strokeColor = fillColor = 'white';
+			}
+			path.style.fill = fillColor;
+			path.style.stroke = strokeColor;
 
-		const handleUrlChange = () => {
-			const urlSearchParams = new URLSearchParams(window.location.search);
-			selectedTableKey = urlSearchParams.get('selectedTableKey');
-		};
+			// Remove the blinking class if the table is not selected
+			if (key !== selectedTableKey) {
+				path.classList.remove('blinking');
+			}
+		}
+	}
+
+	function attachEventListeners() {
 		window.addEventListener('popstate', handleUrlChange);
-		handleUrlChange();
-
 		const svgContainer = document.getElementById('rooms_svg_container');
+		svgContainer.addEventListener('click', handleSvgContainerClick);
+		document.addEventListener('keyup', handleKeyUp);
+	}
 
-		svgContainer.addEventListener('click', (event) => {
-			const target = event.target;
+	function handleSvgContainerClick(event) {
+		const target = event.target;
 
-			if (target.tagName === 'path' && target.hasAttribute('id')) {
-				selectedTableKey = target.id;
-				console.log(selectedTableKey);
-			}
-			updateSelectedTableColor();
-			updateColors();
-		});
+		if (target.tagName === 'path' && target.hasAttribute('id')) {
+			selectedTableKey = target.id;
+		} else {
+			const arrowDiv = document.getElementById('ArrowSvgDiv');
+			arrowDiv.style = 'position: absolute; display: none';
+			selectedTableKey = undefined;
+		}
+		updateSelectedTableColor();
+		updateColors();
+	}
 
-		svgContainer.addEventListener('click', (event) => {
-			const target = event.target;
-
-			if (target.tagName !== 'path' || !target.hasAttribute('id')) {
-				const arrowDiv = document.getElementById('ArrowSvgDiv');
-				arrowDiv.style = 'position: absolute; display: none';
-				selectedTableKey = undefined;
-			}
-			updateSelectedTableColor();
-			updateColors();
-		});
-
-		document.addEventListener('keyup', (event) => {
-			if (event.key === 'Escape') {
-				const arrowDiv = document.getElementById('ArrowSvgDiv');
-				arrowDiv.style = 'position: absolute; display: none';
-				selectedTableKey = undefined;
-			}
-			updateColors();
-			updateSelectedTableColor();
-		});
-	});
+	function handleKeyUp(event) {
+		if (event.key === 'Escape') {
+			const arrowDiv = document.getElementById('ArrowSvgDiv');
+			arrowDiv.style = 'position: absolute; display: none';
+			selectedTableKey = undefined;
+		}
+		updateColors();
+		updateSelectedTableColor();
+	}
 
 	function updateSelectedTableColor() {
 		const room_svg_container = document.getElementById('rooms_svg_container');
@@ -228,16 +163,6 @@
 				path.classList.add('blinking');
 			}
 		}
-	}
-
-	afterUpdate(() => {
-		savetables3();
-		updateColors();
-		updateSelectedTableColor();
-	});
-
-	function goBackToMenu() {
-		goto('/');
 	}
 </script>
 

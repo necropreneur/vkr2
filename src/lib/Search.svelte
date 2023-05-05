@@ -69,7 +69,7 @@
 				}
 			}
 		}
-		console.log(bookingsData)
+		console.log(bookingsData);
 
 		// Search rooms by name
 		for (const roomKey in rooms) {
@@ -108,21 +108,29 @@
 		inputElem.focus();
 	});
 
+	function customGoto(url, options) {
+		goto(url, options).then(() => {
+			if (url.includes('?')) {
+				location.reload();
+			}
+		});
+	}
+
 	function handleResultClick(result) {
 		if (result.type === 'room') {
-			goto(`/?selectedRoomKey=${result.key}`);
+			customGoto(`/?selectedRoomKey=${result.key}`);
 		} else {
 			console.log(result);
 		}
 
 		if (result.type === 'table') {
-			goto(`/${result.location}?selectedTableKey=${result.key}`);
+			customGoto(`/${result.location}?selectedTableKey=${result.key}`);
 		} else {
 			console.log(result);
 		}
 
 		if (result.type === 'booking') {
-			goto(`/${result.location}?selectedDateString=${result.key}&selectedTimeString=${result.time}`);
+			customGoto(`/${result.location}?selectedDateString=${result.key}&selectedTimeString=${result.time}`);
 		} else {
 			console.log(result);
 		}
