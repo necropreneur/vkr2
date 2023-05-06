@@ -28,39 +28,39 @@
 	let rooms = {
 		workspace_1: {
 			name: 'Рабочее пространство 1',
-			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+			description: 'В этом рабочем пространстве располагаются члены команды разработки A'
 		},
 		workspace_2: {
 			name: 'Рабочее пространство 2',
-			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+			description: 'В этом рабочем пространстве располагаются члены команды разработки B'
 		},
 		workspace_3: {
 			name: 'Рабочее пространство 3',
-			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+			description: 'В этом рабочем пространстве располагаются члены команды разработки C'
 		},
 		talking_room_1: {
 			name: 'Переговорная 1',
-			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+			description: 'В этой переговорной комнате поместится до 18-ти человек'
 		},
 		talking_room_2: {
 			name: 'Переговорная 2',
-			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+			description: 'В этой переговорной комнате поместится до 11-ти человек'
 		},
 		dining_room: {
 			name: 'Столовая',
-			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+			description: 'Здесь всегда можно найти вкусный кофе и легкий перекус'
 		},
 		gaming_room: {
 			name: 'Игровая комната',
-			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+			description: 'Здесь можно поиграться с очками виртуальной реальности и PS4'
 		},
 		exit: {
 			name: 'Выход',
-			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+			description: 'Выход, ведущий к главной лестнице'
 		},
 		toilet: {
 			name: 'Туалет',
-			description: 'В этом рабочем пространстве располагаются самые лучшие дизайнеры команды'
+			description: 'Мужской и женский туалет'
 		}
 	};
 
@@ -74,15 +74,6 @@
 		bookings2 = JSON.parse(localStorage.getItem('bookings2')) || {};
 
 		const svgContainer = document.getElementById('rooms_svg_container');
-		const svg = document.querySelector('svg');
-		const viewBox = svg.viewBox.baseVal;
-		const width = viewBox.width;
-		const height = viewBox.height;
-		const aspectRatio = width / height;
-		const svgContainerWidth = svgContainer.clientWidth;
-		const svgContainerHeight = svgContainer.clientHeight;
-		const svgContainerAspectRatio = svgContainerWidth / svgContainerHeight;
-		const scaleFactor = svgContainerAspectRatio > aspectRatio ? svgContainerHeight / height : svgContainerWidth / width;
 
 		svgContainer.addEventListener('click', (event) => {
 			const target = event.target;
@@ -90,51 +81,6 @@
 			if (target.tagName === 'path' && target.hasAttribute('id')) {
 				selectedRoomKey = target.id;
 			}
-		});
-		const svgContainerPaths = document.getElementById('rooms_svg_container').querySelectorAll('path');
-		let arrowDiv = document.getElementById('ArrowSvgDiv');
-		let arrowSvg = document.getElementById('ArrowSvg');
-
-		function adjustPosition(arrow_bbox, room_bbox, withTransition = false) {
-			arrowDiv.style = `position: absolute; pointer-events: none;
-      top: ${room_bbox.y + room_bbox.height / 2 - arrow_bbox.height * 0.9}px;
-      left: ${room_bbox.x + room_bbox.width / 2 - arrow_bbox.width / 2}px;
-      ${withTransition ? 'transition: all 0.3s ease;' : ''}`;
-		}
-
-		svgContainerPaths.forEach((path) => {
-			path.addEventListener('click', () => {
-				let bbox = path.getBBox();
-				let arrow_bbox = arrowSvg.getBBox();
-
-				bbox.x *= scaleFactor;
-				bbox.y *= scaleFactor;
-				bbox.width *= scaleFactor;
-				bbox.height *= scaleFactor;
-				arrow_bbox.width *= scaleFactor;
-				arrow_bbox.height *= scaleFactor;
-
-				// console.log(bbox);
-
-				if (arrowDiv.style.display === 'none') {
-					adjustPosition(arrow_bbox, bbox, false);
-					bbox = path.getBBox();
-					arrow_bbox = arrowSvg.getBBox();
-
-					bbox.x *= scaleFactor;
-					bbox.y *= scaleFactor;
-					bbox.width *= scaleFactor;
-					bbox.height *= scaleFactor;
-					arrow_bbox.width *= scaleFactor;
-					arrow_bbox.height *= scaleFactor;
-
-					adjustPosition(arrow_bbox, bbox, false);
-
-					return;
-				}
-				// Get the path's bounding box to position the image at the center
-				adjustPosition(arrow_bbox, bbox, true);
-			});
 		});
 
 		svgContainer.addEventListener('click', (event) => {
@@ -200,15 +146,40 @@
 		}
 	});
 
+	function updateSelectedRoomColor() {
+		const room_svg_container = document.getElementById('rooms_svg_container');
+		if (room_svg_container && selectedRoomKey) {
+			const path = room_svg_container.querySelector(`#${selectedRoomKey}`);
+			if (path) {
+				// Add the blinking class to the selected path
+				path.classList.add('blinking');
+			}
+		}
+	}
+
+	function removeBlinking() {
+		const room_svg_container = document.getElementById('rooms_svg_container');
+		if (room_svg_container) {
+			for (const key in rooms) {
+				if (key != selectedRoomKey) {
+					const path = room_svg_container.querySelector(`#${key}`);
+					path.classList.remove('blinking');
+				}
+			}
+		}
+	}
+
 	afterUpdate(() => {
 		saveRooms();
+		updateSelectedRoomColor();
+		removeBlinking();
 		// ... (other afterUpdate code)
 	});
 </script>
 
 <div class="flex">
 	<div id="map" class="h-screen !bg-gpt-bg flex w-[72%]">
-		<div class="relative border-2 m-auto w-4/5">
+		<div class="relative border-0 m-auto w-4/5">
 			<div id="rooms_svg_container" class="z-20 relative">
 				<svg width="100%" height="53.9208%" viewBox="0 0 1320 722" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M156.874 363.513H131.646V468.744H156.874V363.513Z" stroke="white" stroke-width="3" stroke-miterlimit="10" />
@@ -276,5 +247,19 @@
 <style>
 	.hover-color {
 		stroke: red !important;
+	}
+
+	:global(.blinking) {
+		animation: blinking 1s infinite;
+	}
+
+	@keyframes blinking {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
 	}
 </style>

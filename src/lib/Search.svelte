@@ -36,6 +36,22 @@
 			{ data: bookings2, location: 'talking_room_2' }
 		];
 
+		const printersData = [
+			{ name: 'Принтер', location: 'workspace_2' },
+			{ name: 'Принтер', location: 'workspace_3' }
+		];
+
+		// Search names in printers
+		for (const printer of printersData) {
+			if (printer.name.toLowerCase().includes(query.toLowerCase())) {
+				results.push({
+					type: 'printer',
+					name: printer.name,
+					location: printer.location
+				});
+			}
+		}
+
 		// Search names in tables
 		for (const tableInfo of tablesData) {
 			for (const tableKey in tableInfo.data) {
@@ -134,6 +150,12 @@
 		} else {
 			console.log(result);
 		}
+
+		if (result.type === 'printer') {
+			customGoto(`/${result.location}`);
+		} else {
+			console.log(result);
+		}
 		// Handle the click on the search result
 	}
 </script>
@@ -159,6 +181,8 @@
 							<span class="font-bold mr-2">Комната</span>
 						{:else if result.type === 'table'}
 							<span class="font-bold mr-2">Стол</span>
+						{:else if result.type === 'printer'}
+						<span class="font-bold mr-2">Принтер</span>
 						{:else}
 							<span class="font-bold mr-2">Бронирование</span>
 						{/if}

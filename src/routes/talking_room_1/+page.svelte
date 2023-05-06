@@ -118,84 +118,21 @@
 
 		const handleUrlChange = () => {
 			const urlSearchParams = new URLSearchParams(window.location.search);
-			selectedDateString = stringToDate(urlSearchParams.get('selectedDateString'));
-			selectedTimeString = decodeTimeString(urlSearchParams.get('selectedTimeString'));
-			console.log(selectedDateString);
+			const resultSelectedTimeString = urlSearchParams.get('selectedTimeString');
+			if (resultSelectedTimeString !== undefined && resultSelectedTimeString !== null) {
+				selectedTimeString = resultSelectedTimeString;
+			}
+			const result = urlSearchParams.get('selectedDateString');
+			if (result !== undefined && result !== null) {
+				selectedDate = stringToDate(result);
+			}
 		};
 		window.addEventListener('popstate', handleUrlChange);
 		handleUrlChange();
 
-		const svgContainer = document.getElementById('rooms_svg_container');
-		const svg = document.querySelector('svg');
-		const viewBox = svg.viewBox.baseVal;
-		const width = viewBox.width;
-		const height = viewBox.height;
-		const aspectRatio = width / height;
-		const svgContainerWidth = svgContainer.clientWidth;
-		const svgContainerHeight = svgContainer.clientHeight;
-		const svgContainerAspectRatio = svgContainerWidth / svgContainerHeight;
-		const scaleFactor = svgContainerAspectRatio > aspectRatio ? svgContainerHeight / height : svgContainerWidth / width;
-
-		svgContainer.addEventListener('click', (event) => {
-			const target = event.target;
-
-			if (target.tagName === 'path' && target.hasAttribute('id')) {
-				// console.log(target.id);
-			}
-		});
-		const svgContainerPaths = document.getElementById('rooms_svg_container').querySelectorAll('path');
-		let arrowDiv = document.getElementById('ArrowSvgDiv');
-		let arrowSvg = document.getElementById('ArrowSvg');
-
-
-		svgContainerPaths.forEach((path) => {
-			path.addEventListener('click', () => {
-				let bbox = path.getBBox();
-				let arrow_bbox = arrowSvg.getBBox();
-
-				bbox.x *= scaleFactor;
-				bbox.y *= scaleFactor;
-				bbox.width *= scaleFactor;
-				bbox.height *= scaleFactor;
-				arrow_bbox.width *= scaleFactor;
-				arrow_bbox.height *= scaleFactor;
-
-				// console.log(bbox);
-
-				if (arrowDiv.style.display === 'none') {
-					adjustPosition(arrow_bbox, bbox, false);
-					bbox = path.getBBox();
-					arrow_bbox = arrowSvg.getBBox();
-
-					bbox.x *= scaleFactor;
-					bbox.y *= scaleFactor;
-					bbox.width *= scaleFactor;
-					bbox.height *= scaleFactor;
-					arrow_bbox.width *= scaleFactor;
-					arrow_bbox.height *= scaleFactor;
-
-					adjustPosition(arrow_bbox, bbox, false);
-
-					return;
-				}
-				// Get the path's bounding box to position the image at the center
-				adjustPosition(arrow_bbox, bbox, true);
-			});
-		});
-
-		svgContainer.addEventListener('click', (event) => {
-			const target = event.target;
-
-			if (target.tagName !== 'path' || !target.hasAttribute('id')) {
-				const arrowDiv = document.getElementById('ArrowSvgDiv');
-				arrowDiv.style = 'position: absolute; display: none';
-			}
-		});
-
 		document.addEventListener('keyup', (event) => {
 			if (event.key === 'Escape') {
-				const arrowDiv = document.getElementById('ArrowSvgDiv');
-				arrowDiv.style = 'position: absolute; display: none';
+				selectedTimeString = '';
 			}
 		});
 	});
