@@ -1,14 +1,13 @@
 <!-- src/routes/SvgComponent.svelte -->
 <script>
 	import { onMount, afterUpdate } from 'svelte';
-	import ArrowSvg from '$lib/icons/arrow.svelte';
-	import { goto } from '$app/navigation';
 	import { DateInput } from 'date-picker-svelte';
 
 	import Search from '../../lib/Search.svelte';
+	import Back from '../../lib/Back.svelte';
 
-	let arrowDiv;
-	let scaleFactor;
+	const bookings_key = 'bookings1';
+
 
 	function dateToString(date) {
 		const day = String(date.getDate()).padStart(2, '0');
@@ -25,7 +24,7 @@
 		return new Date(year, month - 1, day);
 	}
 
-	let bookings1 = {
+	let bookings = {
 		'01-04-2023': {
 			'08:00 - 09:00': { booked: false, description: '' },
 			'09:00 - 10:00': { booked: true, description: '' },
@@ -48,20 +47,20 @@
 		}
 	};
 
-	function saveBookings1() {
-		localStorage.setItem('bookings1', JSON.stringify(bookings1));
+	function saveBookings() {
+		localStorage.setItem(bookings_key, JSON.stringify(bookings));
 	}
 
-	function loadBookings1() {
-		const storedBookings1 = localStorage.getItem('bookings1');
+	function loadBookings() {
+		const storedBookings1 = localStorage.getItem(bookings_key);
 		if (storedBookings1) {
-			bookings1 = JSON.parse(storedBookings1);
+			bookings = JSON.parse(storedBookings1);
 		}
 	}
 
 	function checkAndCreateBooking(dateString) {
-		if (!bookings1[dateString]) {
-			bookings1[dateString] = {
+		if (!bookings[dateString]) {
+			bookings[dateString] = {
 				'08:00 - 09:00': { booked: false, description: '' },
 				'09:00 - 10:00': { booked: false, description: '' },
 				'10:00 - 11:00': { booked: false, description: '' },
@@ -83,41 +82,30 @@
 		if (selectedDateString) {
 			checkAndCreateBooking(selectedDateString);
 			console.log(selectedDateString)
-			console.log(bookings1)
+			console.log(bookings)
 		}
 	}
 	let selectedTimeString;
-	// $: console.log(selectedDateString, selectedTimeString);
 
 	$: {
 		if (selectedDateString && selectedTimeString) {
-			bookings1[selectedDateString][selectedTimeString].booked = bookings1[selectedDateString][selectedTimeString].booked;
+			bookings[selectedDateString][selectedTimeString].booked = bookings[selectedDateString][selectedTimeString].booked;
 		}
 	}
 
 	function bookTimeSlot() {
-		const booking = bookings1[selectedDateString];
+		const booking = bookings[selectedDateString];
 		if (booking) {
 			const timeSlot = booking[selectedTimeString];
 			if (timeSlot) {
-				bookings1[selectedDateString][selectedTimeString].booked = !bookings1[selectedDateString][selectedTimeString].booked;
+				bookings[selectedDateString][selectedTimeString].booked = !bookings[selectedDateString][selectedTimeString].booked;
 			}
 		}
-		// console.log(bookings1[selectedDateString][selectedTimeString]);
 	}
 
-	function decodeTimeString(encodedString) {
-		return decodeURIComponent(encodedString);
-	}
-
-	// function stringToDate(dateString) {
-	// 	const [day, month, year] = dateString.split('-');
-	// 	return new Date(year, month - 1, day);
-	// }
 
 	onMount(() => {
-		loadBookings1();
-		// console.log(bookings1);
+		loadBookings();
 
 		const handleUrlChange = () => {
 			const urlSearchParams = new URLSearchParams(window.location.search);
@@ -141,13 +129,10 @@
 	});
 
 	afterUpdate(() => {
-		saveBookings1();
-		// ... (other afterUpdate code)
+		saveBookings();
 	});
 
-	function goBackToMenu() {
-		goto('/');
-	}
+	
 </script>
 
 <div class="flex justify-between !bg-gpt-bg h-screen">
@@ -170,11 +155,11 @@
 				<div><DateInput format="dd-MM-yyyy" bind:value={selectedDate} placeholder="год месяц день" /></div>
 			</div>
 			<div class="mt-4 flex flex-col justify-between">
-				{#each Object.keys(bookings1[selectedDateString]) as timeSlot}
+				{#each Object.keys(bookings[selectedDateString]) as timeSlot}
 					<div class="flex justify-between text-white mt-4 items-center">
 						<div class="text-2xl border-2 rounded-xl px-2 py-1">{timeSlot}</div>
 						<div class="w-1/2">
-							{#if bookings1[selectedDateString][timeSlot].booked}
+							{#if bookings[selectedDateString][timeSlot].booked}
 								<div class="text-xl py-2 rounded-lg select-none text-center cursor-pointer bg-red" on:click={() => (selectedTimeString = timeSlot)}>Забронировано</div>
 							{:else}
 								<div class="text-xl py-2 rounded-lg select-none text-center cursor-pointer bg-green" on:click={() => (selectedTimeString = timeSlot)}>Свободно</div>
@@ -204,7 +189,7 @@
 					</div>
 					<div class="mt-4 flex flex-col justify-between ">
 						<div class="text-3xl h-fit">Описание:</div>
-						<textarea class="bg-gpt-bg text-3xl px-4 py-2 mt-2" placeholder="Введите описание..." bind:value={bookings1[selectedDateString][selectedTimeString].description} />
+						<textarea class="bg-gpt-bg text-3xl px-4 py-2 mt-2" placeholder="Введите описание..." bind:value={bookings[selectedDateString][selectedTimeString].description} />
 					</div>
 				{:else}
 					<div>Пожалуйтса, выберите дату и время (нажмите "Свободно" или "Забронировано")</div>
@@ -212,7 +197,7 @@
 			</div>
 			<div class="mx-auto w-full">
 				{#if selectedTimeString}
-					{#if !bookings1[selectedDateString][selectedTimeString].booked}
+					{#if !bookings[selectedDateString][selectedTimeString].booked}
 						<div class="px-4 py-2 rounded-lg select-none text-center bg-green-600 hover:bg-green-700 cursor-pointer" on:click={bookTimeSlot}>Забронировать</div>
 					{:else}
 						<div class="px-4 py-2 rounded-lg select-none text-center bg-red-600 hover:bg-red-700 cursor-pointer" on:click={bookTimeSlot}>Отменить бронирование</div>
@@ -222,17 +207,10 @@
 				{/if}
 			</div>
 		</div>
+	</div>
 
-		<!-- ... other parts ... -->
-	</div>
-	<!-- <div>{customGlobalRemovalMode}</div> -->
-	<div class="absolute bottom-0 text-white border-2 p-2 ml-4 mb-4 rounded-lg flex items-center bg-gpt-secondary-bg hover:bg-gpt-bg cursor-pointer select-none" on:click={goBackToMenu}>
-		<!-- <BackSvg /> -->
-		<div class="ml-2 w-4 scale-[200%] text-white fill-none stroke-white stroke-[6px]">
-			<svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" viewBox="0 0 100 100"><path d="M95 44.892v10.216a8.987 8.987 0 0 1-8.961 8.96h-22.8V73.3a8.958 8.958 0 0 1-13.441 7.751L28.466 68.728l-19-10.977a8.956 8.956 0 0 1 0-15.5l19-10.977 21.327-12.323A8.958 8.958 0 0 1 63.234 26.7v9.23h22.805A8.987 8.987 0 0 1 95 44.892Z" /></svg>
-		</div>
-		<div class="w-fit ml-4">Назад в меню</div>
-	</div>
+	<Back />
+	
 </div>
 
 <style>
