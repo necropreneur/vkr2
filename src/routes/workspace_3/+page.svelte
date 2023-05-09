@@ -168,7 +168,7 @@
 
 <div class="flex">
 	<div id="map" class="h-screen !bg-gpt-bg flex w-[72%]">
-		<div class="relative border-0 m-auto w-2/3">
+		<div class="relative border-0 m-auto w-2/4">
 			<div id="rooms_svg_container" class="z-20 relative">
 				<svg width="100%" height="108.6044%" viewBox="0 0 953 1035" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path id="table_1" d="M210.5 947.5L210.5 867L79 867L79 947.5L210.5 947.5Z" fill="white" fill-opacity="0.24" stroke="white" stroke-width="8" />
@@ -233,7 +233,7 @@
 				<Search />
 				<div class="mt-4 text-3xl">Бронирование</div>
 				{#if selectedTableKey}
-					<div class="mt-4">имя бронирующего</div>
+					<div class="mt-4">Имя бронирующего</div>
 					<input class="bg-gpt-bg" bind:value={tables3[selectedTableKey].name} />
 					<div class="mt-4">Должность</div>
 					<input class="bg-gpt-bg" bind:value={tables3[selectedTableKey].ocupation} />
@@ -241,16 +241,16 @@
 					<textarea class="bg-gpt-bg" bind:value={tables3[selectedTableKey].devices} />
 					<div class="mt-4 flex">
 						<div>Постоянное посещение</div>
-						<div><input type="checkbox" bind:checked={tables3[selectedTableKey].fulltime} /></div>
+						<div class="ml-4"><input type="checkbox" bind:checked={tables3[selectedTableKey].fulltime} /></div>
 					</div>
 					<div class="mt-4">или</div>
 					<div class="mt-4 flex">
 						<div class={disabled ? 'text-white/50' : 'text-white'}>Начало брони</div>
-						<div><DateInput bind:value={tables3[selectedTableKey].start_date} format="yyyy-MM-dd" {disabled} /></div>
+						<div class="ml-4"><DateInput bind:value={tables3[selectedTableKey].start_date} format="yyyy-MM-dd" {disabled} /></div>
 					</div>
 					<div class="mt-4 flex">
 						<div class={disabled ? 'text-white/50' : 'text-white'}>Конец брони</div>
-						<div><DateInput bind:value={tables3[selectedTableKey].end_date} format="yyyy-MM-dd" {disabled} /></div>
+						<div class="ml-6"><DateInput bind:value={tables3[selectedTableKey].end_date} format="yyyy-MM-dd" {disabled} /></div>
 					</div>
 				{/if}
 			</div>

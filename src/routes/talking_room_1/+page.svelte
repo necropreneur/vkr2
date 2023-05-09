@@ -82,6 +82,8 @@
 	$: {
 		if (selectedDateString) {
 			checkAndCreateBooking(selectedDateString);
+			console.log(selectedDateString)
+			console.log(bookings1)
 		}
 	}
 	let selectedTimeString;
@@ -115,6 +117,7 @@
 
 	onMount(() => {
 		loadBookings1();
+		// console.log(bookings1);
 
 		const handleUrlChange = () => {
 			const urlSearchParams = new URLSearchParams(window.location.search);
@@ -163,18 +166,18 @@
 		<div class="relative m-auto w-full !bg-gpt-secondary-bg rounded-3xl px-4 py-4">
 			<div class="text-3xl text-white ">Расписание</div>
 			<div class="mt-4 flex justify-between text-white">
-				<div class="text-3xl">Выберите дату:</div>
+				<div class="text-2xl">Выберите дату:</div>
 				<div><DateInput format="dd-MM-yyyy" bind:value={selectedDate} placeholder="год месяц день" /></div>
 			</div>
 			<div class="mt-4 flex flex-col justify-between">
 				{#each Object.keys(bookings1[selectedDateString]) as timeSlot}
 					<div class="flex justify-between text-white mt-4 items-center">
-						<div class="text-3xl border-2 rounded-xl px-2 py-1">{timeSlot}</div>
+						<div class="text-2xl border-2 rounded-xl px-2 py-1">{timeSlot}</div>
 						<div class="w-1/2">
 							{#if bookings1[selectedDateString][timeSlot].booked}
-								<div class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-red" on:click={() => (selectedTimeString = timeSlot)}>Забронировано</div>
+								<div class="text-xl py-2 rounded-lg select-none text-center cursor-pointer bg-red" on:click={() => (selectedTimeString = timeSlot)}>Забронировано</div>
 							{:else}
-								<div class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-green" on:click={() => (selectedTimeString = timeSlot)}>Свободно</div>
+								<div class="text-xl py-2 rounded-lg select-none text-center cursor-pointer bg-green" on:click={() => (selectedTimeString = timeSlot)}>Свободно</div>
 							{/if}
 						</div>
 					</div>
@@ -189,17 +192,19 @@
 				<Search />
 				<div class="mt-4 text-3xl">Бронирование</div>
 				{#if selectedTimeString}
-					<div class="mt-4 flex justify-between">
-						<div>Дата:</div>
-						<div>{selectedDateString}</div>
+					<div class="mt-4 flex justify-between items-center">
+						<div class="text-3xl h-fit">Дата:</div>
+						<!-- <div>{selectedDateString}</div> -->
+						<div class="text-3xl border-2 rounded-xl px-2 py-1">{selectedDateString}</div>
 					</div>
-					<div class="mt-4 flex justify-between">
-						<div>Время:</div>
-						<div>{selectedTimeString}</div>
+					<div class="mt-4 flex justify-between items-center">
+						<div class="text-3xl h-fit">Время:</div>
+						<!-- <div>{selectedTimeString}</div> -->
+						<div class="text-3xl border-2 rounded-xl px-2 py-1">{selectedTimeString}</div>
 					</div>
-					<div class="mt-4 flex flex-col justify-between">
-						<div>Введите название</div>
-						<input class="bg-gpt-bg" bind:value={bookings1[selectedDateString][selectedTimeString].description} />
+					<div class="mt-4 flex flex-col justify-between ">
+						<div class="text-3xl h-fit">Описание:</div>
+						<textarea class="bg-gpt-bg text-3xl px-4 py-2 mt-2" placeholder="Введите описание..." bind:value={bookings1[selectedDateString][selectedTimeString].description} />
 					</div>
 				{:else}
 					<div>Пожалуйтса, выберите дату и время (нажмите "Свободно" или "Забронировано")</div>

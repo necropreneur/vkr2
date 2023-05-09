@@ -1,6 +1,5 @@
 <script>
 	import { onMount, afterUpdate } from 'svelte';
-	import ArrowSvg from '$lib/icons/arrow.svelte';
 	import { goto } from '$app/navigation';
 	import { DateInput } from 'date-picker-svelte';
 	import Search from '../../lib/Search.svelte';
@@ -9,20 +8,20 @@
 	let disabled;
 	let selectedTableKey = getSelectedTableKeyFromUrl();
 
-	onMount(init);
-	afterUpdate(update);
+	// onMount(init);
+	// afterUpdate(update);
 
-	function init() {
-		loadtables1();
-		attachEventListeners();
-		handleUrlChange();
-	}
+	// function init() {
+	// 	loadtables1();
+	// 	attachEventListeners();
+	// 	handleUrlChange();
+	// }
 
-	function update() {
-		savetables1();
-		updateColors();
-		updateSelectedTableColor();
-	}
+	// function update() {
+	// 	savetables1();
+	// 	updateColors();
+	// 	updateSelectedTableColor();
+	// }
 
 	function goBackToMenu() {
 		goto('/');
@@ -163,13 +162,27 @@
 			}
 		}
 	}
+
+	// Lifecycle hooks
+	onMount(() => {
+		saveTablesToLocalStorage();
+		loadTablesFromLocalStorage();
+
+		const svgContainer = document.getElementById('rooms_svg_container');
+		svgContainer.addEventListener('click', handleSvgContainerClick);
+		document.addEventListener('keyup', handleDocumentKeyUp);
+	});
+
+	afterUpdate(() => {
+		updateTableHighlights();
+	});
 </script>
 
 <div class="flex">
 	<div id="map" class="h-screen !bg-gpt-bg flex w-[72%]">
-		<div class="relative border-0 mx-auto h-fit w-fit my-auto">
-			<div id="rooms_svg_container" class="z-20 relative  h-5/6 w-fit">
-				<svg width="640" height="961" viewBox="0 0 640 961" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<div class="relative border-0 mx-auto y-auto">
+			<div id="rooms_svg_container" class="z-20 relative w-full h-full">
+				<svg class="m-auto" width="66.59%" height="100%" viewBox="0 0 640 961" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M347.83 722.619H291.09V959.295H347.83V722.619Z" stroke="white" stroke-width="3" stroke-miterlimit="10" />
 					<path d="M611 4H29C15.1929 4 4 15.1929 4 29V698.715C4 712.522 15.1929 723.715 29 723.715H611C624.807 723.715 636 712.522 636 698.715V29C636 15.1929 624.807 4 611 4Z" stroke="#0085FF" stroke-width="8" stroke-miterlimit="10" />
 					<path id="table_2" d="M628.5 177.5L628.5 97L497 97L497 177.5L628.5 177.5Z" fill="white" fill-opacity="0.24" stroke="white" stroke-width="8" />
@@ -230,7 +243,7 @@
 				<Search />
 				<div class="mt-4 text-3xl">Бронирование</div>
 				{#if selectedTableKey}
-					<div class="mt-4">имя бронирующего</div>
+					<div class="mt-4">Имя бронирующего</div>
 					<input class="bg-gpt-bg" bind:value={tables1[selectedTableKey].name} />
 					<div class="mt-4">Должность</div>
 					<input class="bg-gpt-bg" bind:value={tables1[selectedTableKey].ocupation} />
@@ -238,16 +251,16 @@
 					<textarea class="bg-gpt-bg" bind:value={tables1[selectedTableKey].devices} />
 					<div class="mt-4 flex">
 						<div>Постоянное посещение</div>
-						<div><input type="checkbox" bind:checked={tables1[selectedTableKey].fulltime} /></div>
+						<div class="ml-4"><input type="checkbox" bind:checked={tables1[selectedTableKey].fulltime} /></div>
 					</div>
 					<div class="mt-4">или</div>
 					<div class="mt-4 flex">
 						<div class={disabled ? 'text-white/50' : 'text-white'}>Начало брони</div>
-						<div><DateInput bind:value={tables1[selectedTableKey].start_date} format="yyyy-MM-dd" {disabled} /></div>
+						<div class="ml-4"><DateInput bind:value={tables1[selectedTableKey].start_date} format="yyyy-MM-dd" {disabled} /></div>
 					</div>
 					<div class="mt-4 flex">
 						<div class={disabled ? 'text-white/50' : 'text-white'}>Конец брони</div>
-						<div><DateInput bind:value={tables1[selectedTableKey].end_date} format="yyyy-MM-dd" {disabled} /></div>
+						<div class="ml-6"><DateInput bind:value={tables1[selectedTableKey].end_date} format="yyyy-MM-dd" {disabled} /></div>
 					</div>
 				{/if}
 			</div>
@@ -275,10 +288,6 @@
 </div>
 
 <style>
-	.hover-color {
-		stroke: red !important;
-	}
-
 	:root {
 		--date-picker-background: #313131;
 		--date-picker-foreground: #fff;

@@ -221,7 +221,7 @@
 				<Search />
 				<div class="mt-4 text-3xl">Бронирование</div>
 				{#if selectedTableKey}
-					<div class="mt-4">имя бронирующего</div>
+					<div class="mt-4">Имя бронирующего</div>
 					<input class="bg-gpt-bg" bind:value={tables2[selectedTableKey].name} />
 					<div class="mt-4">Должность</div>
 					<input class="bg-gpt-bg" bind:value={tables2[selectedTableKey].ocupation} />
@@ -229,16 +229,16 @@
 					<textarea class="bg-gpt-bg" bind:value={tables2[selectedTableKey].devices} />
 					<div class="mt-4 flex">
 						<div>Постоянное посещение</div>
-						<div><input type="checkbox" bind:checked={tables2[selectedTableKey].fulltime} /></div>
+						<div class="ml-4"><input type="checkbox" bind:checked={tables2[selectedTableKey].fulltime} /></div>
 					</div>
 					<div class="mt-4">или</div>
 					<div class="mt-4 flex">
 						<div class={disabled ? 'text-white/50' : 'text-white'}>Начало брони</div>
-						<div><DateInput bind:value={tables2[selectedTableKey].start_date} format="yyyy-MM-dd" {disabled} /></div>
+						<div class="ml-4"><DateInput bind:value={tables2[selectedTableKey].start_date} format="yyyy-MM-dd" {disabled} /></div>
 					</div>
 					<div class="mt-4 flex">
 						<div class={disabled ? 'text-white/50' : 'text-white'}>Конец брони</div>
-						<div><DateInput bind:value={tables2[selectedTableKey].end_date} format="yyyy-MM-dd" {disabled} /></div>
+						<div class="ml-6"><DateInput bind:value={tables2[selectedTableKey].end_date} format="yyyy-MM-dd" {disabled} /></div>
 					</div>
 				{/if}
 			</div>

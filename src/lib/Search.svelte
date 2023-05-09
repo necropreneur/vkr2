@@ -12,6 +12,22 @@
 	let searchQuery = '';
 	let searchResults = [];
 
+	const locationToRussian = {
+		rooms: 'Карта',
+		workspace_1: 'Рабочее пространство 1',
+		workspace_2: 'Рабочее пространство 2',
+		workspace_3: 'Рабочее пространство 3',
+		talking_room_1: 'Переговорная 1',
+		talking_room_2: 'Переговорная 2'
+	};
+
+	const typeToRussian = {
+		room: 'Карта',
+		table: 'Стол',
+		booking: 'Бронирование',
+		printer: 'Принтер'
+	};
+
 	function loadDataFromLocalStorage() {
 		return {
 			rooms: JSON.parse(localStorage.getItem('rooms') || '{}'),
@@ -173,25 +189,33 @@
 	</div>
 
 	{#if searchQuery}
-		<div class="ml-[37px] border-x-2 border-b-2 overflow-y-auto z-10 max-h-40 rounded-b-lg" bind:this={resultsElem}>
+		<div class="ml-[38px] border-x-2 border-b-2 overflow-y-auto z-10 max-h-72 rounded-b-lg flex flex-col divide-y-2" bind:this={resultsElem}>
 			{#if searchResults.length > 0}
 				{#each searchResults as result}
-					<div class="p-2 cursor-pointer flexa items-center hover:bg-neutral-300 hover:text-neutral-500 text-white " on:click={() => handleResultClick(result)}>
-						{#if result.type === 'room'}
-							<span class="font-bold mr-2">Комната</span>
-						{:else if result.type === 'table'}
-							<span class="font-bold mr-2">Стол</span>
-						{:else if result.type === 'printer'}
-						<span class="font-bold mr-2">Принтер</span>
-						{:else}
-							<span class="font-bold mr-2">Бронирование</span>
-						{/if}
-						<span class="flex-1">{result.name}</span>
+					<div class="p-2 cursor-pointer flex flex-col hover:bg-neutral-300 hover:text-neutral-500 text-white " on:click={() => handleResultClick(result)}>
+						<div class="flex">
+							<div class="italic font-semibold">Тип:</div>
+							<div class="ml-4">{typeToRussian[result.type]}</div>
+						</div>
+						<div class="flex">
+							<div class="italic font-semibold">Описание:</div>
+							<div class="ml-4">{result.name}</div>
+						</div>
 						{#if result.location}
-							<span class="italic mr-4">{result.location}</span>
+							<div class="flex">
+								<div class="italic font-semibold">Расположение:</div>
+								<div class="ml-4">{locationToRussian[result.location]}</div>
+							</div>
 						{/if}
 						{#if result.time}
-							<span class="italic ml-2">{result.time}</span>
+						<div class="flex">
+							<div class="italic font-semibold">Дата:</div>
+							<div class="ml-4">{result.key}</div>
+						</div>
+							<div class="flex">
+								<div class="italic font-semibold">Время:</div>
+								<div class="ml-4">{result.time}</div>
+							</div>
 						{/if}
 					</div>
 				{/each}

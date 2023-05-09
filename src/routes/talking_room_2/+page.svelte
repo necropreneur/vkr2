@@ -81,6 +81,8 @@
 	$: {
 		if (selectedDateString) {
 			checkAndCreateBooking(selectedDateString);
+			console.log(selectedDateString)
+			console.log(bookings2)
 		}
 	}
 	let selectedTimeString;
@@ -164,18 +166,18 @@
 		<div class="relative m-auto w-full !bg-gpt-secondary-bg rounded-3xl px-4 py-4">
 			<div class="text-3xl text-white ">Расписание</div>
 			<div class="mt-4 flex justify-between items-center text-white">
-				<div class="text-3xl">Выберите дату:</div>
+				<div class="text-2xl">Выберите дату:</div>
 				<DateInput format="dd-MM-yyyy" bind:value={selectedDate} placeholder="год месяц день" class="h-fit mt-[2px]" />
 			</div>
 			<div class="mt-4 flex flex-col justify-between">
 				{#each Object.keys(bookings2[selectedDateString]) as timeSlot}
 					<div class="flex justify-between text-white mt-4 items-center">
-						<div class="text-3xl border-2 rounded-xl px-2 py-1">{timeSlot}</div>
+						<div class="text-2xl border-2 rounded-xl px-2 py-1">{timeSlot}</div>
 						<div class="w-1/2">
 							{#if bookings2[selectedDateString][timeSlot].booked}
-								<div id={selectedTimeString} class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-red" on:click={() => (selectedTimeString = timeSlot)}>Забронировано</div>
+								<div id={selectedTimeString} class="text-xl py-2 rounded-lg select-none text-center cursor-pointer bg-red" on:click={() => (selectedTimeString = timeSlot)}>Забронировано</div>
 							{:else}
-								<div id={selectedTimeString} class="text-2xl py-2 rounded-lg select-none text-center cursor-pointer bg-green" on:click={() => (selectedTimeString = timeSlot)}>Свободно</div>
+								<div id={selectedTimeString} class="text-xl py-2 rounded-lg select-none text-center cursor-pointer bg-green" on:click={() => (selectedTimeString = timeSlot)}>Свободно</div>
 							{/if}
 						</div>
 					</div>
