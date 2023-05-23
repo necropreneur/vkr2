@@ -220,7 +220,7 @@
 					</div>
 				{/each}
 			{:else}
-				<div class="p-2 cursor-pointer flexa items-center text-white hover:bg-neutral-300 hover:text-neutral-500 text-center italic">No results found</div>
+				<div class="p-2 cursor-pointer flexa items-center text-white hover:bg-neutral-300 hover:text-neutral-500 text-center italic">По данному запросу ничего не найдено</div>
 			{/if}
 		</div>
 	{/if}

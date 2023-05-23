@@ -1,6 +1,5 @@
 <script>
 	import { onMount, afterUpdate } from 'svelte';
-	import { goto } from '$app/navigation';
 	import { DateInput } from 'date-picker-svelte';
 	import Search from '../../lib/Search.svelte';
 	import Workspace_1Svg from '../../lib/svg_svelte/Workspace_1Svg.svelte';
@@ -175,8 +174,10 @@
 			<div class="mx-auto w-full">
 				{#if selectedTableKey && tables[selectedTableKey]}
 					{#if !tables[selectedTableKey].booked}
+						<!-- svelte-ignore a11y-click-events-have-key-events -->
 						<div class="px-4 py-2 rounded-lg select-none text-center bg-green-600 hover:bg-green-700 cursor-pointer" on:click={bookTable}>Забронировать</div>
 					{:else}
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
 						<div class="px-4 py-2 rounded-lg select-none text-center bg-red-600 hover:bg-red-700 cursor-pointer" on:click={bookTable}>Отменить бронирование</div>
 					{/if}
 				{:else}
@@ -185,7 +186,6 @@
 			</div>
 		</div>
 	</div>
-	<!-- <div>{customGlobalRemovalMode}</div> -->
 	<Back />
 </div>
 
